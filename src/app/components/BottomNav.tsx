@@ -30,7 +30,7 @@ export function BottomNav() {
     setIsVisible(true)
   }, [pathname])
 
-  // Scroll detection inside the window
+  // Scroll detection inside the window with overscroll safeguards
   useEffect(() => {
     let lastScrollY = window.scrollY
     let ticking = false
@@ -41,19 +41,22 @@ export function BottomNav() {
 
       const currentScrollY = window.scrollY
       
-      // Avoid micro-flickering from tiny scroll steps (threshold of 10px)
-      if (Math.abs(currentScrollY - lastScrollY) < 10) {
-        return
-      }
-
-      if (currentScrollY > lastScrollY && currentScrollY > 50) {
-        // Scrolling Down - hide
-        setIsVisible(false)
-      } else {
-        // Scrolling Up - show
+      // Absolute Top Safety Net: always show at the top
+      if (currentScrollY <= 10) {
+        setIsVisible(true)
+      } 
+      // Prevent hiding on negative scroll (iOS bounce / overscroll)
+      else if (currentScrollY < 0) {
         setIsVisible(true)
       }
-      
+      // Normal scroll logic with a threshold to prevent micro-flickering
+      else if (currentScrollY > lastScrollY + 5) {
+        setIsVisible(false) // Scrolling down
+      } 
+      else if (currentScrollY < lastScrollY - 5) {
+        setIsVisible(true)  // Scrolling up
+      }
+
       lastScrollY = currentScrollY
       ticking = false
     }
