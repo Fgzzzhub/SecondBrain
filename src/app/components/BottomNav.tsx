@@ -147,12 +147,12 @@ export function BottomNav() {
       </nav>
 
       {/* Backdrop Overlay */}
-      <div
-        onClick={() => setMenuOpen(false)}
-        className={`md:hidden fixed inset-0 bg-neutral-950/40 dark:bg-neutral-950/60 z-[65] transition-opacity duration-300 ${
-          menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
-      />
+      {menuOpen && (
+        <div
+          onClick={() => setMenuOpen(false)}
+          className="md:hidden fixed inset-0 bg-neutral-950/40 dark:bg-neutral-950/60 z-[65] transition-opacity duration-300 opacity-100"
+        />
+      )}
 
       {/* Bottom Sheet Drawer */}
       <div
