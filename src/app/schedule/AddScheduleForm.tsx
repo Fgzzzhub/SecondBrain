@@ -55,7 +55,7 @@ export function AddScheduleForm() {
             name="subject"
             required
             placeholder="Subject name (e.g. Advanced Calculus)"
-            className="w-full bg-transparent text-sm text-white placeholder-neutral-600 outline-none border-b border-neutral-900 focus:border-neutral-700 pb-1.5 transition-colors relative z-[100] pointer-events-auto touch-auto"
+            className="w-full bg-transparent text-sm text-white placeholder-neutral-600 outline-none border-b border-neutral-900 focus:border-neutral-700 pb-1.5 transition-colors"
           />
         </div>
 
@@ -65,7 +65,7 @@ export function AddScheduleForm() {
             <select
               name="day"
               required
-              className="bg-neutral-955 text-xs text-white border border-neutral-900 rounded p-1.5 outline-none relative z-[100] pointer-events-auto touch-auto"
+              className="bg-neutral-950 text-xs text-white border border-neutral-900 rounded p-1.5 outline-none"
             >
               {DAYS.map(day => (
                 <option key={day} value={day}>{day}</option>
@@ -79,7 +79,7 @@ export function AddScheduleForm() {
               type="text"
               name="room"
               placeholder="e.g. Room 402"
-              className="bg-neutral-950 text-xs text-white border border-neutral-900 rounded p-1.5 outline-none relative z-[100] pointer-events-auto touch-auto"
+              className="bg-neutral-950 text-xs text-white border border-neutral-900 rounded p-1.5 outline-none"
             />
           </div>
         </div>
@@ -91,7 +91,7 @@ export function AddScheduleForm() {
               type="time"
               name="start_time"
               required
-              className="bg-neutral-950 text-xs text-white border border-neutral-900 rounded p-1.5 outline-none relative z-[100] pointer-events-auto touch-auto"
+              className="bg-neutral-950 text-xs text-white border border-neutral-900 rounded p-1.5 outline-none"
             />
           </div>
 
@@ -101,7 +101,7 @@ export function AddScheduleForm() {
               type="time"
               name="end_time"
               required
-              className="bg-neutral-950 text-xs text-white border border-neutral-900 rounded p-1.5 outline-none relative z-[100] pointer-events-auto touch-auto"
+              className="bg-neutral-950 text-xs text-white border border-neutral-900 rounded p-1.5 outline-none"
             />
           </div>
         </div>

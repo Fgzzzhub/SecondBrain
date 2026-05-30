@@ -53,7 +53,7 @@ export function AddTaskForm() {
             name="title"
             required
             placeholder="Task title"
-            className="w-full bg-transparent text-sm text-white placeholder-neutral-600 outline-none border-b border-neutral-900 focus:border-neutral-700 pb-1.5 transition-colors relative z-[100] pointer-events-auto touch-auto"
+            className="w-full bg-transparent text-sm text-white placeholder-neutral-600 outline-none border-b border-neutral-900 focus:border-neutral-700 pb-1.5 transition-colors"
           />
         </div>
 
@@ -63,7 +63,7 @@ export function AddTaskForm() {
               type="text"
               name="course_name"
               placeholder="Course name (e.g. CS101)"
-              className="w-full bg-transparent text-xs text-white placeholder-neutral-600 outline-none border-b border-neutral-900 focus:border-neutral-700 pb-1.5 transition-colors relative z-[100] pointer-events-auto touch-auto"
+              className="w-full bg-transparent text-xs text-white placeholder-neutral-600 outline-none border-b border-neutral-900 focus:border-neutral-700 pb-1.5 transition-colors"
             />
           </div>
 
@@ -71,7 +71,7 @@ export function AddTaskForm() {
             <input
               type="date"
               name="due_date"
-              className="w-full bg-transparent text-xs text-neutral-400 placeholder-neutral-600 outline-none border-b border-neutral-900 focus:border-neutral-700 pb-1.5 transition-colors relative z-[100] pointer-events-auto touch-auto"
+              className="w-full bg-transparent text-xs text-neutral-400 placeholder-neutral-600 outline-none border-b border-neutral-900 focus:border-neutral-700 pb-1.5 transition-colors"
             />
           </div>
         </div>

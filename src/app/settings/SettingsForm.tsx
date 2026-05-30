@@ -65,7 +65,7 @@ export function SettingsForm({ initialPrefs }: SettingsFormProps) {
             name="user_name"
             defaultValue={initialPrefs?.user_name || ''}
             placeholder="Your name"
-            className="w-full bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 rounded-md p-2 outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors relative z-[100] pointer-events-auto touch-auto"
+            className="w-full bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 rounded-md p-2 outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors"
           />
         </div>
       </div>
@@ -139,7 +139,7 @@ export function SettingsForm({ initialPrefs }: SettingsFormProps) {
               min="1"
               max="120"
               required
-              className="w-full bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 rounded-md p-2 outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors relative z-[100] pointer-events-auto touch-auto"
+              className="w-full bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 rounded-md p-2 outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors"
             />
           </div>
 
@@ -152,7 +152,7 @@ export function SettingsForm({ initialPrefs }: SettingsFormProps) {
               min="1"
               max="60"
               required
-              className="w-full bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 rounded-md p-2 outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors relative z-[100] pointer-events-auto touch-auto"
+              className="w-full bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 rounded-md p-2 outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors"
             />
           </div>
         </div>

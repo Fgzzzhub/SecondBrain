@@ -53,7 +53,7 @@ export function AddTransactionForm() {
             <select
               name="type"
               required
-              className="bg-neutral-950 text-xs text-white border border-neutral-900 rounded p-1.5 outline-none relative z-[100] pointer-events-auto touch-auto"
+              className="bg-neutral-950 text-xs text-white border border-neutral-900 rounded p-1.5 outline-none"
             >
               <option value="expense">Expense</option>
               <option value="income">Income</option>
@@ -68,7 +68,7 @@ export function AddTransactionForm() {
               step="1"
               required
               placeholder="10000"
-              className="bg-neutral-950 text-xs text-white border border-neutral-900 rounded p-1.5 outline-none relative z-[100] pointer-events-auto touch-auto"
+              className="bg-neutral-950 text-xs text-white border border-neutral-900 rounded p-1.5 outline-none"
             />
           </div>
         </div>
@@ -79,7 +79,7 @@ export function AddTransactionForm() {
             name="description"
             required
             placeholder="Description (e.g. Snacks, Textbooks)"
-            className="w-full bg-transparent text-sm text-white placeholder-neutral-600 outline-none border-b border-neutral-900 focus:border-neutral-700 pb-1.5 transition-colors relative z-[100] pointer-events-auto touch-auto"
+            className="w-full bg-transparent text-sm text-white placeholder-neutral-600 outline-none border-b border-neutral-900 focus:border-neutral-700 pb-1.5 transition-colors"
           />
         </div>
 

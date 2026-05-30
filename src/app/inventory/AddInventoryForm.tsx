@@ -57,7 +57,7 @@ export function AddInventoryForm({ courses }: AddInventoryFormProps) {
             name="item_name"
             required
             placeholder="Item name (e.g. Raspberry Pi 4, Logic Analyzer)"
-            className="w-full bg-transparent text-sm text-white placeholder-neutral-600 outline-none border-b border-neutral-900 focus:border-neutral-700 pb-1.5 transition-colors relative z-[100] pointer-events-auto touch-auto"
+            className="w-full bg-transparent text-sm text-white placeholder-neutral-600 outline-none border-b border-neutral-900 focus:border-neutral-700 pb-1.5 transition-colors"
           />
         </div>
 
@@ -66,7 +66,7 @@ export function AddInventoryForm({ courses }: AddInventoryFormProps) {
             <label className="text-[10px] text-neutral-500 uppercase font-medium">Status</label>
             <select
               name="status"
-              className="bg-neutral-950 text-xs text-white border border-neutral-900 rounded p-1.5 outline-none relative z-[100] pointer-events-auto touch-auto"
+              className="bg-neutral-950 text-xs text-white border border-neutral-900 rounded p-1.5 outline-none"
             >
               <option value="Available">Available</option>
               <option value="Borrowed">Borrowed</option>
@@ -78,7 +78,7 @@ export function AddInventoryForm({ courses }: AddInventoryFormProps) {
             <label className="text-[10px] text-neutral-500 uppercase font-medium">Related Course</label>
             <select
               name="course_id"
-              className="bg-neutral-950 text-xs text-white border border-neutral-900 rounded p-1.5 outline-none relative z-[100] pointer-events-auto touch-auto"
+              className="bg-neutral-950 text-xs text-white border border-neutral-900 rounded p-1.5 outline-none"
             >
               <option value="">None</option>
               {courses.map(course => (
