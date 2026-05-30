@@ -54,15 +54,17 @@ export function TaskCard({ task }: { task: Task }) {
           </span>
         </div>
 
-        <select
-          value={task.status}
-          onChange={handleStatusChange}
-          className="bg-neutral-950 text-[11px] text-neutral-400 border border-neutral-800 hover:border-neutral-700 rounded-md px-2.5 py-1 outline-none transition-colors cursor-pointer"
-        >
-          <option value="todo">To Do</option>
-          <option value="in_progress">In Progress</option>
-          <option value="done">Done</option>
-        </select>
+        <form onSubmit={(e) => e.preventDefault()} className="inline-flex">
+          <select
+            value={task.status}
+            onChange={handleStatusChange}
+            className="bg-neutral-950 text-[11px] text-neutral-400 border border-neutral-800 hover:border-neutral-700 rounded-md px-2.5 py-1 outline-none transition-colors cursor-pointer"
+          >
+            <option value="todo">To Do</option>
+            <option value="in_progress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+        </form>
       </div>
     </div>
   )

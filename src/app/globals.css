@@ -71,3 +71,23 @@ body::-webkit-scrollbar {
     pointer-events: auto !important;
   }
 }
+
+/* iOS WebKit Specific Fixes */
+@supports (-webkit-touch-callout: none) {
+  /* Isolate the body from blocking touch events */
+  body {
+    -webkit-user-select: none;
+  }
+  
+  /* FORCE iOS to recognize these as interactive text fields */
+  input, textarea, select, [contenteditable] {
+    -webkit-user-select: auto !important;
+    user-select: auto !important;
+    -webkit-touch-callout: default !important;
+    /* Prevent iOS 15+ focus hijacking */
+    -webkit-appearance: none; 
+    /* Crucial for iPhone 15 Pro dynamic island/safe area bug */
+    position: relative;
+    z-index: 9999;
+  }
+}

@@ -70,15 +70,17 @@ export function InventoryItemCard({ item }: InventoryItemCardProps) {
           {item.status}
         </span>
 
-        <select
-          value={item.status}
-          onChange={handleStatusChange}
-          className="bg-neutral-950 text-[11px] text-neutral-400 border border-neutral-800 hover:border-neutral-700 rounded-md px-2.5 py-1 outline-none transition-colors cursor-pointer"
-        >
-          <option value="Available">Available</option>
-          <option value="Borrowed">Borrowed</option>
-          <option value="Broken">Broken</option>
-        </select>
+        <form onSubmit={(e) => e.preventDefault()} className="inline-flex">
+          <select
+            value={item.status}
+            onChange={handleStatusChange}
+            className="bg-neutral-950 text-[11px] text-neutral-400 border border-neutral-800 hover:border-neutral-700 rounded-md px-2.5 py-1 outline-none transition-colors cursor-pointer"
+          >
+            <option value="Available">Available</option>
+            <option value="Borrowed">Borrowed</option>
+            <option value="Broken">Broken</option>
+          </select>
+        </form>
       </div>
     </div>
   )
