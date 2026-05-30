@@ -34,7 +34,7 @@ export function TimelineForm() {
             name="title"
             placeholder="Today I learned..."
             required
-            className="w-full bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 rounded-md p-2.5 outline-none focus:border-neutral-400 dark:focus:border-neutral-650 transition-colors"
+            className="w-full bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 rounded-md p-2.5 outline-none focus:border-neutral-400 dark:focus:border-neutral-650 transition-colors relative z-[100] pointer-events-auto touch-auto"
           />
         </div>
 
@@ -44,7 +44,7 @@ export function TimelineForm() {
             placeholder="Describe what you discovered, how it works, or why it matters..."
             required
             rows={3}
-            className="w-full bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 rounded-md p-2.5 outline-none focus:border-neutral-400 dark:focus:border-neutral-650 transition-colors resize-none"
+            className="w-full bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 rounded-md p-2.5 outline-none focus:border-neutral-400 dark:focus:border-neutral-650 transition-colors resize-none relative z-[100] pointer-events-auto touch-auto"
           />
         </div>
 
@@ -53,7 +53,7 @@ export function TimelineForm() {
             type="text"
             name="tags"
             placeholder="react, webdev, database (comma-separated, optional)"
-            className="w-full bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 rounded-md p-2.5 outline-none focus:border-neutral-400 dark:focus:border-neutral-650 transition-colors"
+            className="w-full bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 rounded-md p-2.5 outline-none focus:border-neutral-400 dark:focus:border-neutral-650 transition-colors relative z-[100] pointer-events-auto touch-auto"
           />
         </div>
       </div>

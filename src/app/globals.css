@@ -49,7 +49,13 @@ body::-webkit-scrollbar {
   outline-offset: 2px;
 }
 
-input, textarea, [contenteditable] {
-  -webkit-user-select: auto !important;
-  user-select: auto !important;
+body {
+  pointer-events: auto !important;
+}
+
+input, textarea {
+  pointer-events: auto !important;
+  touch-action: manipulation !important;
+  -webkit-user-select: text !important;
+  user-select: text !important;
 }

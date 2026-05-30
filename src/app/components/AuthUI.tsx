@@ -63,7 +63,7 @@ export function AuthUI() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@example.com"
-              className="px-3.5 py-2 text-sm rounded-lg border border-neutral-800 bg-neutral-900/30 text-white placeholder-neutral-600 outline-none focus:border-neutral-700 transition-colors"
+              className="px-3.5 py-2 text-sm rounded-lg border border-neutral-800 bg-neutral-900/30 text-white placeholder-neutral-600 outline-none focus:border-neutral-700 transition-colors relative z-[100] pointer-events-auto touch-auto"
             />
           </div>
 
@@ -75,7 +75,7 @@ export function AuthUI() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="px-3.5 py-2 text-sm rounded-lg border border-neutral-800 bg-neutral-900/30 text-white placeholder-neutral-600 outline-none focus:border-neutral-700 transition-colors"
+              className="px-3.5 py-2 text-sm rounded-lg border border-neutral-800 bg-neutral-900/30 text-white placeholder-neutral-600 outline-none focus:border-neutral-700 transition-colors relative z-[100] pointer-events-auto touch-auto"
             />
           </div>
 

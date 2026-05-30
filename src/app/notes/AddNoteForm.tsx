@@ -53,7 +53,7 @@ export function AddNoteForm() {
             name="title"
             required
             placeholder="Note title"
-            className="w-full bg-transparent text-sm text-white placeholder-neutral-600 outline-none border-b border-neutral-900 focus:border-neutral-700 pb-1.5 transition-colors"
+            className="w-full bg-transparent text-sm text-white placeholder-neutral-600 outline-none border-b border-neutral-900 focus:border-neutral-700 pb-1.5 transition-colors relative z-[100] pointer-events-auto touch-auto"
           />
         </div>
 
@@ -63,7 +63,7 @@ export function AddNoteForm() {
             required
             rows={4}
             placeholder="Write your thoughts..."
-            className="w-full bg-transparent text-xs text-white placeholder-neutral-600 outline-none border-b border-neutral-900 focus:border-neutral-700 pb-1.5 transition-colors resize-none"
+            className="w-full bg-transparent text-xs text-white placeholder-neutral-600 outline-none border-b border-neutral-900 focus:border-neutral-700 pb-1.5 transition-colors resize-none relative z-[100] pointer-events-auto touch-auto"
           />
         </div>
 
