@@ -48,3 +48,26 @@ body::-webkit-scrollbar {
   outline: 2px solid #525252;
   outline-offset: 2px;
 }
+
+/* PWA Standalone Mode Fixes */
+@media (display-mode: standalone) {
+  /* Force momentum scrolling */
+  body, html {
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  /* Force inputs to be tappable and selectable */
+  input, textarea, [contenteditable] {
+    -webkit-user-select: text !important;
+    user-select: text !important;
+    -webkit-touch-callout: default !important;
+    /* Prevent tap delays or gesture hijacking */
+    touch-action: manipulation !important; 
+  }
+
+  /* Ensure Bottom Nav safe-area doesn't create an invisible giant block */
+  .bottom-nav-container {
+    padding-bottom: env(safe-area-inset-bottom) !important;
+    pointer-events: auto !important;
+  }
+}

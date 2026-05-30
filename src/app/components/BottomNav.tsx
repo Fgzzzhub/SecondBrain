@@ -89,7 +89,7 @@ export function BottomNav() {
     <>
       {/* 5 Main Tabs - Fixed bottom with slide animation */}
       <nav
-        className={`md:hidden fixed bottom-0 left-0 w-full h-16 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-lg border-t border-neutral-200 dark:border-neutral-800 flex items-center justify-around px-2 z-[60] pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ease-in-out ${
+        className={`md:hidden fixed bottom-0 left-0 w-full h-[calc(4rem+env(safe-area-inset-bottom))] bg-white/95 dark:bg-neutral-950/95 backdrop-blur-lg border-t border-neutral-200 dark:border-neutral-800 flex items-center justify-around px-2 z-[60] pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ease-in-out bottom-nav-container ${
           isVisible ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
