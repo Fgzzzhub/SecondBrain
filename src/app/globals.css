@@ -48,3 +48,8 @@ body::-webkit-scrollbar {
   outline: 2px solid #525252;
   outline-offset: 2px;
 }
+
+input, textarea, [contenteditable] {
+  -webkit-user-select: auto !important;
+  user-select: auto !important;
+}
