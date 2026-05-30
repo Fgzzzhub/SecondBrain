@@ -1,65 +1,137 @@
-import Image from "next/image";
+import { createClient } from '@/lib/supabase/server'
+import { format } from 'date-fns'
+import Link from 'next/link'
+import { CheckSquare, Calendar, StickyNote, ArrowUpRight } from 'lucide-react'
+import { RabbitHoleWidget } from './components/RabbitHoleWidget'
 
-export default function Home() {
+const quotes = [
+  "Simplicity is the ultimate sophistication.",
+  "Focus on being productive instead of busy.",
+  "The best way to predict the future is to create it.",
+  "Your mind is for having ideas, not holding them."
+]
+
+export default async function DashboardPage() {
+  const supabase = await createClient()
+  
+  // Fetch statistics
+  const { count: pendingTasks } = await supabase
+    .from('tasks')
+    .select('*', { count: 'exact', head: true })
+    .neq('status', 'done')
+
+  const { data: schedule } = await supabase
+    .from('schedule')
+    .select('*')
+
+  const { data: notes } = await supabase
+    .from('notes')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(3)
+
+  const todayName = format(new Date(), 'EEEE') // e.g. "Monday"
+  const todayClasses = schedule?.filter(s => s.day === todayName) || []
+  
+  const randomQuote = quotes[Math.floor(Math.random() * quotes.length)]
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="flex flex-col gap-10">
+      {/* Header */}
+      <header className="flex flex-col gap-2.5">
+        <p className="text-xs text-neutral-500 font-medium tracking-wide uppercase">
+          {format(new Date(), 'EEEE, MMMM d, yyyy')}
+        </p>
+        <h1 className="text-2xl font-medium tracking-tight text-neutral-900 dark:text-white sm:text-3xl">
+          Welcome back
+        </h1>
+        <p className="text-sm text-neutral-500 dark:text-neutral-450 italic font-light max-w-md">
+          &ldquo;{randomQuote}&rdquo;
+        </p>
+      </header>
+
+      {/* Grid Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Link href="/tasks" className="p-5 rounded-2xl border border-neutral-200 dark:border-neutral-900 bg-neutral-55/50 dark:bg-neutral-900/10 hover:bg-neutral-100/50 dark:hover:bg-neutral-900/25 transition-colors group">
+          <div className="flex justify-between items-start mb-4">
+            <CheckSquare className="w-4 h-4 text-neutral-400 dark:text-neutral-500 stroke-[1.5px]" />
+            <ArrowUpRight className="w-3.5 h-3.5 text-neutral-405 group-hover:text-neutral-900 dark:group-hover:text-neutral-300 transition-colors" />
+          </div>
+          <p className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white">{pendingTasks || 0}</p>
+          <p className="text-xs text-neutral-500 mt-1">Pending tasks</p>
+        </Link>
+
+        <Link href="/schedule" className="p-5 rounded-2xl border border-neutral-200 dark:border-neutral-900 bg-neutral-55/50 dark:bg-neutral-900/10 hover:bg-neutral-100/50 dark:hover:bg-neutral-900/25 transition-colors group">
+          <div className="flex justify-between items-start mb-4">
+            <Calendar className="w-4 h-4 text-neutral-400 dark:text-neutral-500 stroke-[1.5px]" />
+            <ArrowUpRight className="w-3.5 h-3.5 text-neutral-405 group-hover:text-neutral-900 dark:group-hover:text-neutral-300 transition-colors" />
+          </div>
+          <p className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white">{todayClasses.length}</p>
+          <p className="text-xs text-neutral-500 mt-1">Classes today</p>
+        </Link>
+
+        <Link href="/notes" className="p-5 rounded-2xl border border-neutral-200 dark:border-neutral-900 bg-neutral-55/50 dark:bg-neutral-900/10 hover:bg-neutral-100/50 dark:hover:bg-neutral-900/25 transition-colors group">
+          <div className="flex justify-between items-start mb-4">
+            <StickyNote className="w-4 h-4 text-neutral-400 dark:text-neutral-500 stroke-[1.5px]" />
+            <ArrowUpRight className="w-3.5 h-3.5 text-neutral-405 group-hover:text-neutral-900 dark:group-hover:text-neutral-300 transition-colors" />
+          </div>
+          <p className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white">{notes?.length || 0}</p>
+          <p className="text-xs text-neutral-500 mt-1">Recent notes</p>
+        </Link>
+      </div>
+
+      {/* Rabbit Hole Curiosity widget */}
+      <RabbitHoleWidget />
+
+      {/* Main Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Today's Schedule */}
+        <section className="flex flex-col gap-4">
+          <h2 className="text-xs font-semibold tracking-wider text-neutral-400 dark:text-neutral-500 uppercase">Today's Schedule</h2>
+          <div className="flex flex-col gap-3">
+            {todayClasses.length > 0 ? (
+              todayClasses.map((cls) => (
+                <div key={cls.id} className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-900 bg-neutral-50/50 dark:bg-neutral-900/5 flex items-center justify-between">
+                  <div>
+                    <h4 className="text-sm font-medium text-neutral-900 dark:text-white">{cls.subject}</h4>
+                    <p className="text-xs text-neutral-500 mt-1">Room {cls.room}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs font-medium text-neutral-600 dark:text-neutral-300">
+                      {cls.start_time.slice(0, 5)} - {cls.end_time.slice(0, 5)}
+                    </p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="p-5 text-center rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800">
+                <p className="text-xs text-neutral-500">No classes scheduled for today.</p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Quick Notes */}
+        <section className="flex flex-col gap-4">
+          <h2 className="text-xs font-semibold tracking-wider text-neutral-400 dark:text-neutral-500 uppercase">Recent Notes</h2>
+          <div className="flex flex-col gap-3">
+            {notes && notes.length > 0 ? (
+              notes.map((note) => (
+                <div key={note.id} className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-900 bg-neutral-50/50 dark:bg-neutral-900/5">
+                  <h4 className="text-sm font-medium text-neutral-900 dark:text-white truncate">{note.title}</h4>
+                  <p className="text-xs text-neutral-550 dark:text-neutral-400 mt-1.5 line-clamp-2 leading-relaxed">
+                    {note.content}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <div className="p-5 text-center rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800">
+                <p className="text-xs text-neutral-500">No notes created yet.</p>
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
     </div>
-  );
+  )
 }

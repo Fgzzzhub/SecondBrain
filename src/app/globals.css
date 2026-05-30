@@ -1,26 +1,50 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #0a0a0a;
+  --loader-color: #0a0a0a;
+  --font-sans: var(--font-inter), Arial, Helvetica, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  --background: #050505;
+  --foreground: #ededed;
+  --loader-color: #ededed;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Hide scrollbar for a cleaner feel */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+/* Custom minimal utility for styling selections and focus rings */
+::selection {
+  background-color: #e5e5e5;
+  color: #0a0a0a;
+}
+
+.dark ::selection {
+  background-color: #262626;
+  color: #ffffff;
+}
+
+*:focus-visible {
+  outline: 2px solid #525252;
+  outline-offset: 2px;
 }
