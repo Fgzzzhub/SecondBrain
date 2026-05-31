@@ -28,6 +28,7 @@ export function AuthUI() {
         if (error) throw error
         alert('Check your email for the confirmation link!')
       }
+      router.push('/')
       router.refresh()
     } catch (err: any) {
       setError(err.message || 'An error occurred')

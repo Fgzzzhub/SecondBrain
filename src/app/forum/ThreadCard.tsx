@@ -26,15 +26,23 @@ interface ThreadCardProps {
   thread: Thread
   currentUserId: string
   userPreferencesMap: Record<string, string> // maps user_id -> user_name
+  currentUserMetadata?: any
 }
 
-export function ThreadCard({ thread, currentUserId, userPreferencesMap }: ThreadCardProps) {
+export function ThreadCard({ thread, currentUserId, userPreferencesMap, currentUserMetadata }: ThreadCardProps) {
   const [isPending, startTransition] = useTransition()
   const [showComments, setShowComments] = useState(false)
   const [newComment, setNewComment] = useState('')
 
-  // Author details
-  const authorName = userPreferencesMap[thread.user_id] || `Friend (${thread.user_id.slice(0, 5)})`
+  // Resolve display names
+  const getAuthorName = (userId: string) => {
+    if (userId === currentUserId && currentUserMetadata?.full_name) {
+      return currentUserMetadata.full_name
+    }
+    return userPreferencesMap[userId] || `Friend (${userId.slice(0, 5)})`
+  }
+
+  const authorName = getAuthorName(thread.user_id)
 
   // Optimistic UI for likes
   const isLikedByMe = thread.likes.some((like) => like.user_id === currentUserId)
@@ -185,7 +193,7 @@ export function ThreadCard({ thread, currentUserId, userPreferencesMap }: Thread
               {[...thread.comments]
                 .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime())
                 .map((comment) => {
-                const commentAuthor = userPreferencesMap[comment.user_id] || `Friend (${comment.user_id.slice(0, 5)})`
+                const commentAuthor = getAuthorName(comment.user_id)
                 return (
                   <div key={comment.id} className="flex gap-2.5 items-start text-xs group/comment">
                     <CornerDownRight className="w-3.5 h-3.5 text-neutral-450 dark:text-neutral-600 mt-1 flex-shrink-0" />

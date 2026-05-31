@@ -27,7 +27,7 @@ export default async function SettingsPage() {
         <p className="text-neutral-500 text-xs sm:text-sm">Customize Pomodoro timers, visibility filters, and profile details.</p>
       </header>
 
-      <SettingsForm initialPrefs={preferences} />
+      <SettingsForm initialPrefs={preferences} initialUser={user} />
     </div>
   )
 }

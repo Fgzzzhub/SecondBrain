@@ -8,6 +8,7 @@ import { useSettings, AccentColor } from '@/app/components/SettingsContext'
 import { ExportDataButton } from '@/app/components/ExportDataButton'
 import { createClient } from '@/lib/supabase/client'
 import { triggerHaptic } from '@/lib/haptic'
+import { User } from '@supabase/supabase-js'
 
 interface Preferences {
   id: string
@@ -19,9 +20,10 @@ interface Preferences {
 
 interface SettingsFormProps {
   initialPrefs: Preferences | null
+  initialUser: User
 }
 
-export function SettingsForm({ initialPrefs }: SettingsFormProps) {
+export function SettingsForm({ initialPrefs, initialUser }: SettingsFormProps) {
   const { theme, setTheme } = useTheme()
   const { accentColor, setAccentColor, toggleModule, isModuleEnabled, isHydrated } = useSettings()
   const [mounted, setMounted] = useState(false)
@@ -29,6 +31,33 @@ export function SettingsForm({ initialPrefs }: SettingsFormProps) {
   const [hideBalance, setHideBalance] = useState(initialPrefs?.hide_financial_balance ?? false)
   const [successMsg, setSuccessMsg] = useState(false)
   const supabase = createClient()
+
+  // Profile name state
+  const [displayName, setDisplayName] = useState(initialUser.user_metadata?.full_name || '')
+  const [updatingProfile, setUpdatingProfile] = useState(false)
+  const [profileSuccess, setProfileSuccess] = useState(false)
+
+  const handleUpdateProfile = async () => {
+    if (!displayName.trim()) {
+      alert('Display name cannot be empty')
+      return
+    }
+    setUpdatingProfile(true)
+    setProfileSuccess(false)
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: { full_name: displayName.trim() }
+      })
+      if (error) throw error
+      setProfileSuccess(true)
+      triggerHaptic(30)
+      setTimeout(() => setProfileSuccess(false), 3000)
+    } catch (e: any) {
+      alert(e.message || 'Failed to update display name')
+    } finally {
+      setUpdatingProfile(false)
+    }
+  }
 
   const handleSignOut = async () => {
     triggerHaptic(50)
@@ -67,6 +96,38 @@ export function SettingsForm({ initialPrefs }: SettingsFormProps) {
 
   return (
     <div className="flex flex-col gap-6 max-w-lg">
+      {/* Profile Section */}
+      <div className="flex flex-col gap-4 p-5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+        <div className="flex flex-col gap-0.5">
+          <h3 className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider">Profile</h3>
+          <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-normal">Update your public display name for forum posts and comments.</p>
+        </div>
+        
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[10px] text-neutral-500 dark:text-neutral-400 uppercase font-medium">Public Display Name</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="Friend"
+              className="flex-1 bg-neutral-55 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 rounded-md p-2 outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors"
+            />
+            <button
+              type="button"
+              onClick={handleUpdateProfile}
+              disabled={updatingProfile}
+              className="px-4 py-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 rounded-md text-xs font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+            >
+              {updatingProfile ? 'Saving...' : 'Save'}
+            </button>
+          </div>
+          {profileSuccess && (
+            <p className="text-[10px] text-green-600 dark:text-green-400 mt-1 font-medium">Display name updated successfully!</p>
+          )}
+        </div>
+      </div>
+
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       {successMsg && (
         <div className="p-3 text-xs bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/30 text-green-700 dark:text-green-400 rounded-lg font-medium">

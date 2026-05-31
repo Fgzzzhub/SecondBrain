@@ -64,6 +64,7 @@ export default async function ForumPage() {
                 thread={thread}
                 currentUserId={user.id}
                 userPreferencesMap={userPreferencesMap}
+                currentUserMetadata={user.user_metadata}
               />
             ))}
           </div>
