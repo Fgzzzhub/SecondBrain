@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { TimelineForm } from './TimelineForm'
 import { TimelineCard } from './TimelineCard'
 import { Sparkles } from 'lucide-react'
+import { EmptyState } from '../components/EmptyState'
 
 export const revalidate = 0
 
@@ -44,9 +45,10 @@ export default async function TimelinePage() {
             Error loading timeline. Please ensure the database table is configured.
           </div>
         ) : !logs || logs.length === 0 ? (
-          <div className="p-8 text-center border border-dashed border-neutral-200 dark:border-neutral-800 rounded-xl bg-neutral-50/50 dark:bg-neutral-900/10">
-            <p className="text-xs text-neutral-500 dark:text-neutral-400">Your timeline is empty. Record your first learning log above!</p>
-          </div>
+          <EmptyState
+            message="Linimasa kamu kosong. Catat pembelajaran pertamamu di atas!"
+            icon={Sparkles}
+          />
         ) : (
           <div className="relative border-l border-neutral-200 dark:border-neutral-800 ml-3 pl-6 flex flex-col gap-6">
             {logs.map((log: LearningLog) => (
