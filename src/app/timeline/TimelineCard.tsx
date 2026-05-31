@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { deleteLearningLog, updateLearningLog } from '@/app/actions'
 import { Calendar, Trash2, Edit3, Check, X } from 'lucide-react'
+import { triggerHaptic } from '@/lib/haptic'
 
 interface LearningLog {
   id: string
@@ -22,7 +23,9 @@ export function TimelineCard({ log }: { log: LearningLog }) {
   const [editTags, setEditTags] = useState(log.tags ? log.tags.join(', ') : '')
 
   const handleDelete = async () => {
+    triggerHaptic(40)
     if (confirm('Are you sure you want to delete this learning log?')) {
+      triggerHaptic(80)
       startTransition(async () => {
         try {
           await deleteLearningLog(log.id)
@@ -142,16 +145,24 @@ export function TimelineCard({ log }: { log: LearningLog }) {
           </div>
 
           {/* Edit / Delete actions */}
-          <div className="opacity-0 group-hover:opacity-100 focus-within:opacity-100 flex items-center gap-1 transition-opacity">
+          <div className="opacity-100 md:opacity-0 md:group-hover:opacity-100 focus-within:opacity-100 flex items-center gap-1 transition-opacity">
             <button
-              onClick={() => setIsEditing(true)}
+              onClick={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+                setIsEditing(true)
+              }}
               className="p-1 text-neutral-400 hover:text-neutral-700 dark:text-neutral-600 dark:hover:text-neutral-350 rounded cursor-pointer"
               title="Edit log"
             >
               <Edit3 className="w-3.5 h-3.5 stroke-[1.5px]" />
             </button>
             <button
-              onClick={handleDelete}
+              onClick={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+                handleDelete()
+              }}
               disabled={isPending}
               className="p-1 text-neutral-400 hover:text-rose-500 dark:text-neutral-600 dark:hover:text-rose-450 rounded cursor-pointer"
               title="Delete log"

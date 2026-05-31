@@ -78,8 +78,8 @@ export function InstallPWA() {
 
       {/* iOS Instructions Modal */}
       {showiOSModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="w-full max-w-xs p-6 bg-neutral-900 border border-neutral-800 rounded-2xl flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+          <div className="w-full max-w-xs p-6 bg-neutral-900 dark:bg-neutral-900 border border-neutral-800 rounded-2xl flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200 relative z-10">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-white">Install on iOS</span>
               <button

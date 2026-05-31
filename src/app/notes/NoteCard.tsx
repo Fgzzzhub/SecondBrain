@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { updateNote, deleteNote } from '@/app/actions'
 import { Trash2, Edit3, Check, X } from 'lucide-react'
+import { triggerHaptic } from '@/lib/haptic'
 
 interface NoteCardProps {
   note: {
@@ -22,7 +23,9 @@ export function NoteCard({ note }: NoteCardProps) {
   const [editContent, setEditContent] = useState(note.content)
 
   const handleDelete = async () => {
+    triggerHaptic(40)
     if (confirm(`Delete note: "${note.title}"?`)) {
+      triggerHaptic(80)
       startTransition(async () => {
         try {
           await deleteNote(note.id)
@@ -107,18 +110,26 @@ export function NoteCard({ note }: NoteCardProps) {
           <h3 className="text-sm font-semibold text-neutral-800 dark:text-white truncate">{note.title}</h3>
           
           {/* Edit/Delete options */}
-          <div className="opacity-0 group-hover:opacity-100 focus-within:opacity-100 flex items-center gap-1 transition-opacity">
+          <div className="opacity-100 md:opacity-0 md:group-hover:opacity-100 focus-within:opacity-100 flex items-center gap-1 transition-opacity">
             <button
-              onClick={() => setIsEditing(true)}
+              onClick={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+                setIsEditing(true)
+              }}
               className="p-1 text-neutral-400 hover:text-neutral-700 dark:text-neutral-600 dark:hover:text-neutral-305 rounded cursor-pointer"
               title="Edit note"
             >
               <Edit3 className="w-3.5 h-3.5 stroke-[1.5px]" />
             </button>
             <button
-              onClick={handleDelete}
+              onClick={(e) => {
+                e.stopPropagation()
+                e.preventDefault()
+                handleDelete()
+              }}
               disabled={isPending}
-              className="p-1 text-neutral-400 hover:text-rose-500 dark:text-neutral-600 dark:hover:text-rose-400 rounded cursor-pointer"
+              className="p-1 text-neutral-400 hover:text-rose-500 dark:text-neutral-600 dark:hover:text-rose-450 rounded cursor-pointer"
               title="Delete note"
             >
               <Trash2 className="w-3.5 h-3.5 stroke-[1.5px]" />
