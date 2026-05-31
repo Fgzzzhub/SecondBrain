@@ -18,7 +18,7 @@ export default async function DashboardPage() {
   const { count: pendingTasks } = await supabase
     .from('tasks')
     .select('*', { count: 'exact', head: true })
-    .neq('status', 'done')
+    .eq('is_completed', false)
 
   const { data: schedule } = await supabase
     .from('schedule')

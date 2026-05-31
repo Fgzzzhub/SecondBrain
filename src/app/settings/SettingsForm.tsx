@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
 import { saveUserPreferences } from '@/app/actions'
 import { Save, Eye, EyeOff, Sun, Moon, Laptop } from 'lucide-react'
+import { useSettings, AccentColor } from '@/app/components/SettingsContext'
+import { ExportDataButton } from '@/app/components/ExportDataButton'
 
 interface Preferences {
   id: string
@@ -19,6 +21,7 @@ interface SettingsFormProps {
 
 export function SettingsForm({ initialPrefs }: SettingsFormProps) {
   const { theme, setTheme } = useTheme()
+  const { accentColor, setAccentColor, toggleModule, isModuleEnabled, isHydrated } = useSettings()
   const [mounted, setMounted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [hideBalance, setHideBalance] = useState(initialPrefs?.hide_financial_balance ?? false)
@@ -182,6 +185,91 @@ export function SettingsForm({ initialPrefs }: SettingsFormProps) {
           </button>
         </div>
       </div>
+
+      {/* Personalization (Accent Color) */}
+      <div className="flex flex-col gap-4 p-5 rounded-xl border border-neutral-200 dark:border-neutral-850 bg-white dark:bg-neutral-900">
+        <h3 className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider">Accent Color</h3>
+        <p className="text-[10px] text-neutral-500 dark:text-neutral-400">Customize the primary accent color for active items, buttons, and highlights.</p>
+        
+        <div className="flex gap-3 mt-1">
+          {([
+            { id: 'indigo', label: 'Indigo', bg: 'bg-indigo-500' },
+            { id: 'emerald', label: 'Emerald', bg: 'bg-emerald-500' },
+            { id: 'rose', label: 'Rose', bg: 'bg-rose-500' },
+            { id: 'amber', label: 'Amber', bg: 'bg-amber-500' },
+            { id: 'cyan', label: 'Cyan', bg: 'bg-cyan-500' },
+          ] as const).map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => setAccentColor(c.id)}
+              className={`w-8 h-8 rounded-full ${c.bg} transition-all relative flex items-center justify-center cursor-pointer shadow-sm ${
+                accentColor === c.id
+                  ? 'ring-2 ring-neutral-900 dark:ring-white ring-offset-2 ring-offset-white dark:ring-offset-neutral-900 scale-110'
+                  : 'hover:scale-105 opacity-80'
+              }`}
+              title={c.label}
+            >
+              {accentColor === c.id && (
+                <span className="w-1.5 h-1.5 rounded-full bg-white dark:bg-neutral-900" />
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Module Toggles */}
+      <div className="flex flex-col gap-4 p-5 rounded-xl border border-neutral-200 dark:border-neutral-850 bg-white dark:bg-neutral-900">
+        <div className="flex flex-col gap-0.5">
+          <h3 className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider">Active Modules</h3>
+          <p className="text-[10px] text-neutral-500 dark:text-neutral-400">Toggle optional features to simplify and declutter your navigation feed.</p>
+        </div>
+
+        {isHydrated ? (
+          <div className="flex flex-col gap-3.5 divide-y divide-neutral-100 dark:divide-neutral-800/60">
+            {([
+              { id: 'schedule', label: 'Schedule', desc: 'Personal calendar and time management.' },
+              { id: 'finance', label: 'Finance', desc: 'Track cashflow, balances, and analytics.' },
+              { id: 'inventory', label: 'Inventory', desc: 'Track item quantities, locations, and conditions.' },
+              { id: 'forum', label: 'Forum', desc: 'Share updates, links, and comments in a private feed.' },
+              { id: 'docs', label: 'Manual', desc: 'Read help documentation and operating instructions.' },
+            ] as const).map((mod, idx) => (
+              <div
+                key={mod.id}
+                className={`flex items-center justify-between gap-4 ${idx > 0 ? 'pt-3.5' : ''}`}
+              >
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-xs font-medium text-neutral-800 dark:text-neutral-200">{mod.label}</span>
+                  <p className="text-[10px] text-neutral-400 dark:text-neutral-500 leading-normal">{mod.desc}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => toggleModule(mod.id)}
+                  className={`relative inline-flex h-5.5 w-10 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-205 ease-in-out focus:outline-none ${
+                    isModuleEnabled(mod.id)
+                      ? 'bg-[rgb(var(--color-primary))]'
+                      : 'bg-neutral-200 dark:bg-neutral-800'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-4.5 w-4.5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                      isModuleEnabled(mod.id) ? 'translate-x-4.5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4 animate-pulse">
+            <div className="h-10 bg-neutral-100 dark:bg-neutral-950 rounded-lg" />
+            <div className="h-10 bg-neutral-100 dark:bg-neutral-950 rounded-lg" />
+            <div className="h-10 bg-neutral-100 dark:bg-neutral-950 rounded-lg" />
+          </div>
+        )}
+      </div>
+
+      <ExportDataButton />
 
       <button
         type="submit"

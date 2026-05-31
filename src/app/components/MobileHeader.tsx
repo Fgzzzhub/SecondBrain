@@ -13,6 +13,7 @@ const routeTitles: Record<string, string> = {
   '/inventory': 'Inventory',
   '/settings': 'Settings',
   '/docs': 'Manual',
+  '/forum': 'The Forum',
 }
 
 export function MobileHeader() {
@@ -20,7 +21,7 @@ export function MobileHeader() {
   const title = routeTitles[pathname] || 'Brain OS'
 
   return (
-    <header className="md:hidden sticky top-0 w-full h-14 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-md border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between px-6 z-40 transition-colors shadow-none">
+    <header className="md:hidden fixed top-0 left-0 w-full h-14 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-md border-b border-neutral-200/50 dark:border-neutral-800/40 flex items-center justify-between px-6 z-50 transition-all shadow-none">
       <div className="flex items-center gap-2">
         <Brain className="w-4 h-4 text-neutral-900 dark:text-white stroke-[1.5px]" />
         <span className="font-semibold text-xs tracking-tight text-neutral-900 dark:text-white">Brain OS</span>

@@ -7,7 +7,7 @@ import { revalidatePath } from 'next/cache'
 export async function createTask(formData: FormData) {
   const supabase = await createClient()
   const title = formData.get('title') as string
-  const course_name = formData.get('course_name') as string
+  const description = formData.get('description') as string
   const due_date = formData.get('due_date') as string
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -17,10 +17,10 @@ export async function createTask(formData: FormData) {
     .from('tasks')
     .insert({
       title,
-      course_name: course_name || null,
+      description: description || null,
       due_date: due_date ? new Date(due_date).toISOString() : null,
       user_id: user.id,
-      status: 'todo'
+      is_completed: false
     })
 
   if (error) throw new Error(error.message)
@@ -28,12 +28,12 @@ export async function createTask(formData: FormData) {
   revalidatePath('/')
 }
 
-export async function updateTaskStatus(taskId: string, status: 'todo' | 'in_progress' | 'done') {
+export async function toggleTaskCompletion(taskId: string, is_completed: boolean) {
   const supabase = await createClient()
   
   const { error } = await supabase
     .from('tasks')
-    .update({ status })
+    .update({ is_completed })
     .eq('id', taskId)
 
   if (error) throw new Error(error.message)
@@ -47,6 +47,23 @@ export async function deleteTask(taskId: string) {
   const { error } = await supabase
     .from('tasks')
     .delete()
+    .eq('id', taskId)
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/tasks')
+  revalidatePath('/')
+}
+
+export async function updateTask(taskId: string, title: string, description: string | null, due_date: string | null) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('tasks')
+    .update({
+      title,
+      description: description || null,
+      due_date: due_date ? new Date(due_date).toISOString() : null,
+    })
     .eq('id', taskId)
 
   if (error) throw new Error(error.message)
@@ -84,6 +101,19 @@ export async function deleteNote(noteId: string) {
   const { error } = await supabase
     .from('notes')
     .delete()
+    .eq('id', noteId)
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/notes')
+  revalidatePath('/')
+}
+
+export async function updateNote(noteId: string, title: string, content: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('notes')
+    .update({ title, content })
     .eq('id', noteId)
 
   if (error) throw new Error(error.message)
@@ -170,6 +200,8 @@ export async function createInventoryItem(formData: FormData) {
   const item_name = formData.get('item_name') as string
   const status = formData.get('status') as string
   const course_id = formData.get('course_id') as string
+  const quantity = parseInt(formData.get('quantity') as string) || 1
+  const location = formData.get('location') as string
 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error("Unauthorized")
@@ -178,8 +210,10 @@ export async function createInventoryItem(formData: FormData) {
     .from('inventories')
     .insert({
       item_name,
-      status: status || 'Available',
+      status: status || 'Normal',
       course_id: course_id || null,
+      quantity,
+      location: location || null,
       user_id: user.id
     })
 
@@ -194,6 +228,24 @@ export async function updateInventoryItemStatus(itemId: string, status: string) 
   const { error } = await supabase
     .from('inventories')
     .update({ status })
+    .eq('id', itemId)
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/inventory')
+  revalidatePath('/')
+}
+
+export async function updateInventoryItem(itemId: string, item_name: string, quantity: number, location: string | null, status: string) {
+  const supabase = await createClient()
+
+  const { error } = await supabase
+    .from('inventories')
+    .update({
+      item_name,
+      quantity,
+      location: location || null,
+      status
+    })
     .eq('id', itemId)
 
   if (error) throw new Error(error.message)
@@ -278,6 +330,21 @@ export async function deleteLearningLog(logId: string) {
   revalidatePath('/timeline')
 }
 
+export async function updateLearningLog(logId: string, title: string, content: string, tagsRaw: string) {
+  const supabase = await createClient()
+  const tags = tagsRaw
+    ? tagsRaw.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+    : []
+
+  const { error } = await supabase
+    .from('learning_logs')
+    .update({ title, content, tags })
+    .eq('id', logId)
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/timeline')
+}
+
 // Rabbit Hole Actions
 export async function fetchRandomKnowledge() {
   try {
@@ -322,4 +389,93 @@ export async function signOut() {
   await supabase.auth.signOut()
   revalidatePath('/')
 }
+
+// Forum Actions
+export async function createThread(content: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const { error } = await supabase
+    .from('threads')
+    .insert({
+      user_id: user.id,
+      content
+    })
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/forum')
+}
+
+export async function deleteThread(threadId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const { error } = await supabase
+    .from('threads')
+    .delete()
+    .eq('id', threadId)
+    .eq('user_id', user.id)
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/forum')
+}
+
+export async function toggleLike(threadId: string, currentlyLiked: boolean) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  if (currentlyLiked) {
+    const { error } = await supabase
+      .from('likes')
+      .delete()
+      .eq('thread_id', threadId)
+      .eq('user_id', user.id)
+    if (error) throw new Error(error.message)
+  } else {
+    const { error } = await supabase
+      .from('likes')
+      .insert({
+        thread_id: threadId,
+        user_id: user.id
+      })
+    if (error) throw new Error(error.message)
+  }
+  revalidatePath('/forum')
+}
+
+export async function createComment(threadId: string, content: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const { error } = await supabase
+    .from('comments')
+    .insert({
+      thread_id: threadId,
+      user_id: user.id,
+      content
+    })
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/forum')
+}
+
+export async function deleteComment(commentId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const { error } = await supabase
+    .from('comments')
+    .delete()
+    .eq('id', commentId)
+    .eq('user_id', user.id)
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/forum')
+}
+
 

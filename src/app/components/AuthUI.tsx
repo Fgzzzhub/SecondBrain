@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { InstallPWA } from './InstallPWA'
 
 export function AuthUI() {
   const [email, setEmail] = useState('')
@@ -96,6 +97,8 @@ export function AuthUI() {
             {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
           </button>
         </div>
+
+        <InstallPWA />
       </div>
     </div>
   )

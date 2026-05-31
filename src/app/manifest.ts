@@ -16,5 +16,21 @@ export default function manifest(): MetadataRoute.Manifest {
         type: 'image/svg+xml',
       },
     ],
+    shortcuts: [
+      {
+        name: 'Add New Note',
+        short_name: 'New Note',
+        description: 'Create a new note in your second brain',
+        url: '/notes?new=true',
+        icons: [{ src: '/icon.svg', sizes: 'any' }]
+      },
+      {
+        name: 'Add Task',
+        short_name: 'Add Task',
+        description: 'Add a new action item to your backlog',
+        url: '/tasks',
+        icons: [{ src: '/icon.svg', sizes: 'any' }]
+      }
+    ]
   }
 }
