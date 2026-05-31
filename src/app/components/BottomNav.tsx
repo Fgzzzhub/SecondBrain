@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { LayoutDashboard, CheckSquare, Sparkles, StickyNote, Menu, X } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
+import { LayoutDashboard, CheckSquare, Sparkles, StickyNote, Menu, X, LogOut } from 'lucide-react'
 import { SidebarLinks } from './SidebarLinks'
 import { triggerHaptic } from '@/lib/haptic'
+import { createClient } from '@/lib/supabase/client'
 
 const primaryNav = [
   { icon: LayoutDashboard, label: "Home", href: "/" },
@@ -16,8 +17,23 @@ const primaryNav = [
 
 export function BottomNav() {
   const pathname = usePathname()
+  const router = useRouter()
+  const supabase = createClient()
   const [menuOpen, setMenuOpen] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
+
+  const handleSignOut = async () => {
+    triggerHaptic(50)
+    try {
+      await supabase.auth.signOut()
+      localStorage.removeItem('settings_accent_color')
+      localStorage.removeItem('settings_disabled_modules')
+      document.documentElement.style.removeProperty('--color-primary')
+      window.location.href = '/login'
+    } catch (e) {
+      console.error('Error signing out:', e)
+    }
+  }
 
   // Reset visibility when navigating to a new page
   useEffect(() => {
@@ -187,6 +203,17 @@ export function BottomNav() {
             triggerHaptic(15)
             setMenuOpen(false)
           }} showOnlyDrawerItems={true} />
+        </div>
+
+        {/* Pinned Sign Out Section */}
+        <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800 flex-shrink-0">
+          <button
+            onClick={handleSignOut}
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-neutral-450 hover:text-red-500 hover:bg-red-500/5 dark:hover:bg-red-500/10 border border-transparent hover:border-red-500/20 text-xs font-semibold transition-all cursor-pointer"
+          >
+            <LogOut className="w-4 h-4 stroke-[1.5px]" />
+            Sign Out
+          </button>
         </div>
       </div>
     </>

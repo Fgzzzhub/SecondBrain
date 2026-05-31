@@ -3,9 +3,11 @@
 import { useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
 import { saveUserPreferences } from '@/app/actions'
-import { Save, Eye, EyeOff, Sun, Moon, Laptop } from 'lucide-react'
+import { Save, Eye, EyeOff, Sun, Moon, Laptop, LogOut } from 'lucide-react'
 import { useSettings, AccentColor } from '@/app/components/SettingsContext'
 import { ExportDataButton } from '@/app/components/ExportDataButton'
+import { createClient } from '@/lib/supabase/client'
+import { triggerHaptic } from '@/lib/haptic'
 
 interface Preferences {
   id: string
@@ -26,6 +28,20 @@ export function SettingsForm({ initialPrefs }: SettingsFormProps) {
   const [loading, setLoading] = useState(false)
   const [hideBalance, setHideBalance] = useState(initialPrefs?.hide_financial_balance ?? false)
   const [successMsg, setSuccessMsg] = useState(false)
+  const supabase = createClient()
+
+  const handleSignOut = async () => {
+    triggerHaptic(50)
+    try {
+      await supabase.auth.signOut()
+      localStorage.removeItem('settings_accent_color')
+      localStorage.removeItem('settings_disabled_modules')
+      document.documentElement.style.removeProperty('--color-primary')
+      window.location.href = '/login'
+    } catch (e) {
+      console.error('Error signing out:', e)
+    }
+  }
 
   useEffect(() => {
     setMounted(true)
@@ -50,7 +66,8 @@ export function SettingsForm({ initialPrefs }: SettingsFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6 max-w-lg">
+    <div className="flex flex-col gap-6 max-w-lg">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
       {successMsg && (
         <div className="p-3 text-xs bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900/30 text-green-700 dark:text-green-400 rounded-lg font-medium">
           Preferences saved successfully.
@@ -280,5 +297,23 @@ export function SettingsForm({ initialPrefs }: SettingsFormProps) {
         {loading ? 'Saving Preferences...' : 'Save Preferences'}
       </button>
     </form>
+
+      {/* Danger Zone: Log Out */}
+      <div className="flex flex-col gap-4 p-5 rounded-xl border border-red-500/20 dark:border-red-550/20 bg-red-500/5 dark:bg-red-500/5">
+        <div className="flex flex-col gap-0.5">
+          <h3 className="text-xs font-semibold text-red-500 uppercase tracking-wider">Danger Zone</h3>
+          <p className="text-[10px] text-neutral-550 dark:text-neutral-400">Actions that affect your local session and configuration settings.</p>
+        </div>
+        
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className="w-full py-3 flex items-center justify-center gap-2 text-red-500 bg-red-500/10 border border-red-500/20 rounded-xl hover:bg-red-500/20 text-xs font-semibold transition-all cursor-pointer"
+        >
+          <LogOut className="w-4 h-4 stroke-[1.5px]" />
+          Log Out
+        </button>
+      </div>
+    </div>
   )
 }
