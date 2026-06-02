@@ -180,7 +180,7 @@ export function OmniSearch() {
       {/* Floating Header Magnifier Trigger */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed top-4 right-16 z-[45] md:top-6 md:right-8 w-10 h-10 rounded-full border border-neutral-200 dark:border-neutral-850 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:scale-105 transition-all shadow-sm cursor-pointer"
+        className="fixed top-4 right-16 z-[10005] md:top-6 md:right-8 w-10 h-10 rounded-full border border-neutral-200 dark:border-neutral-850 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:scale-105 transition-all shadow-sm cursor-pointer"
         title="Search OS (Ctrl+K)"
       >
         <Search className="w-4 h-4 stroke-[1.5px]" />
@@ -188,7 +188,7 @@ export function OmniSearch() {
 
       {/* Overlay Backdrop */}
       {isOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] flex items-start justify-center p-4 pt-[10vh] md:pt-[15vh]">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[10030] flex items-start justify-center p-4 pt-[10vh] md:pt-[15vh]">
           {/* Modal Container */}
           <div
             className="w-full max-w-lg bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl flex flex-col overflow-hidden shadow-2xl animate-in fade-in slide-in-from-top-4 duration-200"

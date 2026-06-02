@@ -99,7 +99,7 @@ export function BottomNav() {
     <>
       {/* 5 Main Tabs - Fixed bottom with slide animation */}
       <nav
-        className={`md:hidden fixed bottom-0 left-0 w-full h-[calc(4rem+env(safe-area-inset-bottom))] bg-white/80 dark:bg-neutral-950/80 backdrop-blur-md border-t border-neutral-200/50 dark:border-neutral-800/40 flex items-center justify-around px-2 z-50 pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ease-in-out bottom-nav-container ${
+        className={`md:hidden fixed bottom-0 left-0 w-full h-[calc(4rem+env(safe-area-inset-bottom))] bg-white/80 dark:bg-neutral-950/80 backdrop-blur-md border-t border-neutral-200/50 dark:border-neutral-800/40 flex items-center justify-around px-2 z-[10000] pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ease-in-out bottom-nav-container ${
           isVisible ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
@@ -168,14 +168,14 @@ export function BottomNav() {
           triggerHaptic(10)
           setMenuOpen(false)
         }}
-        className={`md:hidden fixed inset-0 bg-neutral-950/40 dark:bg-neutral-950/60 z-[65] transition-opacity duration-300 ${
+        className={`md:hidden fixed inset-0 bg-neutral-950/40 dark:bg-neutral-950/60 z-[10010] transition-opacity duration-300 ${
           menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       />
 
       {/* Bottom Sheet Drawer */}
       <div
-        className={`md:hidden fixed bottom-0 left-0 w-full max-h-[75vh] bg-white/95 dark:bg-neutral-950/95 backdrop-blur-lg border-t border-neutral-200/50 dark:border-neutral-800/40 rounded-t-2xl z-[70] p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] transition-all duration-300 transform flex flex-col gap-4 ${
+        className={`md:hidden fixed bottom-0 left-0 w-full max-h-[75vh] bg-white/95 dark:bg-neutral-950/95 backdrop-blur-lg border-t border-neutral-200/50 dark:border-neutral-800/40 rounded-t-2xl z-[10020] p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] transition-all duration-300 transform flex flex-col gap-4 ${
           menuOpen ? 'translate-y-0 pointer-events-auto' : 'translate-y-full pointer-events-none'
         }`}
       >

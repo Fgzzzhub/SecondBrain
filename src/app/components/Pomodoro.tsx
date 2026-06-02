@@ -65,7 +65,7 @@ export function Pomodoro() {
   }
 
   return (
-    <div className="fixed bottom-20 md:bottom-6 right-6 z-50 flex flex-col items-end">
+    <div className="fixed bottom-20 md:bottom-6 right-6 z-[10005] flex flex-col items-end">
       {isExpanded ? (
         <div className="w-64 p-5 rounded-2xl border border-neutral-900 bg-neutral-950/95 backdrop-blur-md shadow-2xl flex flex-col gap-4 transition-all">
           <div className="flex justify-between items-center">
