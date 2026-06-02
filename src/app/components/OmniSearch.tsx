@@ -180,7 +180,7 @@ export function OmniSearch() {
       {/* Floating Header Magnifier Trigger */}
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed top-4 right-16 z-[10005] md:top-6 md:right-8 w-10 h-10 rounded-full border border-neutral-200 dark:border-neutral-850 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md flex items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:scale-105 transition-all shadow-sm cursor-pointer"
+        className="hidden md:flex fixed top-4 right-16 z-[10005] md:top-6 md:right-8 w-10 h-10 rounded-full border border-neutral-200 dark:border-neutral-850 bg-white/80 dark:bg-neutral-900/80 backdrop-blur-md items-center justify-center text-neutral-500 hover:text-neutral-900 dark:hover:text-white hover:scale-105 transition-all shadow-sm cursor-pointer"
         title="Search OS (Ctrl+K)"
       >
         <Search className="w-4 h-4 stroke-[1.5px]" />
