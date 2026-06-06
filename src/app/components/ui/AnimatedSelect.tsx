@@ -42,7 +42,7 @@ export function AnimatedSelect({
   }, [])
 
   return (
-    <div ref={containerRef} className={`relative w-full ${className}`}>
+    <div ref={containerRef} className={`relative w-full ${isOpen ? 'z-[100]' : 'z-10'} ${className}`}>
       {/* Hidden input for standard HTML forms */}
       {name && <input type="hidden" name={name} value={value} />}
 
@@ -63,7 +63,7 @@ export function AnimatedSelect({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.96 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            className="absolute z-[100] left-0 right-0 mt-1.5 max-h-48 overflow-y-auto overscroll-contain bg-neutral-950 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg shadow-2xl outline-none divide-y divide-neutral-100 dark:divide-neutral-850/40 scrollbar-thin scrollbar-thumb-neutral-250 dark:scrollbar-thumb-neutral-800"
+            className="absolute z-[9999] left-0 right-0 mt-1.5 max-h-48 overflow-y-auto overscroll-contain bg-neutral-950 dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-800 rounded-lg shadow-2xl outline-none divide-y divide-neutral-200 dark:divide-neutral-850/60 scrollbar-thin scrollbar-thumb-neutral-250 dark:scrollbar-thumb-neutral-800"
           >
             {options.map((option) => (
               <li key={option.value}>
