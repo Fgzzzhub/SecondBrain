@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react'
 import { toggleTaskCompletion, deleteTask, updateTask } from '@/app/actions'
 import { Calendar, Trash2, CheckCircle2, Circle, Edit3, Check, X } from 'lucide-react'
 import { triggerHaptic } from '@/lib/haptic'
+import { motion } from 'framer-motion'
 
 interface Task {
   id: string
@@ -18,6 +19,7 @@ export function TaskCard({ task }: { task: Task }) {
   const [isPending, startTransition] = useTransition()
   const [optimisticCompleted, setOptimisticCompleted] = useState(task.is_completed)
   const [isEditing, setIsEditing] = useState(false)
+  const [draggedLeft, setDraggedLeft] = useState(false)
 
   // Edit fields state
   const [editTitle, setEditTitle] = useState(task.title)
@@ -39,17 +41,14 @@ export function TaskCard({ task }: { task: Task }) {
   }
 
   const handleDelete = async () => {
-    triggerHaptic(40)
-    if (confirm('Delete this action item?')) {
-      triggerHaptic(80)
-      startTransition(async () => {
-        try {
-          await deleteTask(task.id)
-        } catch {
-          alert('Failed to delete task')
-        }
-      })
-    }
+    triggerHaptic(80)
+    startTransition(async () => {
+      try {
+        await deleteTask(task.id)
+      } catch {
+        alert('Failed to delete task')
+      }
+    })
   }
 
   const handleSave = () => {
@@ -97,7 +96,7 @@ export function TaskCard({ task }: { task: Task }) {
 
   if (isEditing) {
     return (
-      <div className="p-4 rounded-2xl border border-neutral-350 dark:border-neutral-700 bg-white dark:bg-neutral-950/40 backdrop-blur-sm flex flex-col gap-3 shadow-md">
+      <div className="p-4 rounded-2xl border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-950/40 backdrop-blur-sm flex flex-col gap-3 shadow-md">
         <h4 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Edit Action Item</h4>
 
         {/* Title Input */}
@@ -131,110 +130,33 @@ export function TaskCard({ task }: { task: Task }) {
 
         {/* Action buttons */}
         <div className="flex justify-end gap-2 mt-2">
-          <button
+          <motion.button
+            whileTap={{ scale: 0.9 }}
             onClick={handleCancel}
             disabled={isPending}
             className="p-1.5 rounded-lg border border-neutral-200 dark:border-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-900/40 text-neutral-500 transition-colors cursor-pointer"
             title="Cancel"
           >
             <X className="w-3.5 h-3.5" />
-          </button>
-          <button
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.9 }}
             onClick={handleSave}
             disabled={isPending}
-            className="p-1.5 rounded-lg bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 hover:opacity-90 transition-opacity cursor-pointer"
+            className="p-1.5 rounded-lg bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 hover:opacity-90 transition-opacity cursor-pointer flex items-center justify-center"
             title="Save"
           >
             <Check className="w-3.5 h-3.5" />
-          </button>
+          </motion.button>
         </div>
       </div>
     )
   }
 
   return (
-    <div
-      className={`p-4 rounded-2xl border border-neutral-200 dark:border-neutral-900 bg-white dark:bg-neutral-950/20 backdrop-blur-sm transition-all duration-300 group flex items-start gap-3.5 shadow-sm ${
-        optimisticCompleted
-          ? 'opacity-40 border-neutral-100 dark:border-neutral-950'
-          : 'hover:border-neutral-350 dark:hover:border-neutral-800'
-      }`}
-    >
-      {/* Satisfying Checkbox */}
-      <button
-        onClick={handleToggle}
-        disabled={isPending}
-        className={`mt-0.5 flex-shrink-0 transition-all rounded-full p-0.5 hover:bg-neutral-100 dark:hover:bg-neutral-900/50 cursor-pointer ${
-          optimisticCompleted
-            ? 'text-emerald-500 dark:text-emerald-400'
-            : 'text-neutral-400 hover:text-neutral-600 dark:text-neutral-600 dark:hover:text-neutral-450'
-        }`}
-      >
-        {optimisticCompleted ? (
-          <CheckCircle2 className="w-5 h-5 fill-emerald-50 dark:fill-emerald-950/30 stroke-[2px]" />
-        ) : (
-          <Circle className="w-5 h-5 stroke-[1.5px]" />
-        )}
-      </button>
-
-      {/* Task Details */}
-      <div className="flex-1 min-w-0 flex flex-col gap-1.5">
-        <h4
-          className={`text-sm font-medium leading-snug transition-all duration-300 ${
-            optimisticCompleted
-              ? 'line-through text-neutral-400 dark:text-neutral-550'
-              : 'text-neutral-800 dark:text-neutral-200'
-          }`}
-        >
-          {task.title}
-        </h4>
-
-        {task.description && (
-          <p
-            className={`text-xs leading-relaxed transition-all duration-300 line-clamp-2 ${
-              optimisticCompleted
-                ? 'text-neutral-400/80 dark:text-neutral-550/80'
-                : 'text-neutral-500 dark:text-neutral-400'
-            }`}
-          >
-            {task.description}
-          </p>
-        )}
-
-        {/* Due Date & Badges */}
-        {dateInfo && (
-          <div className="flex items-center gap-1.5 mt-1.5">
-            <span
-              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-semibold font-mono tracking-wide ${
-                optimisticCompleted
-                  ? 'bg-neutral-100 dark:bg-neutral-900 text-neutral-400 dark:text-neutral-600'
-                  : dateInfo.type === 'overdue'
-                  ? 'bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400'
-                  : dateInfo.type === 'today'
-                  ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400'
-                  : 'bg-neutral-55 dark:bg-neutral-900 text-neutral-500 dark:text-neutral-450'
-              }`}
-            >
-              <Calendar className="w-3 h-3 stroke-[1.5px]" />
-              {dateInfo.text}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Edit / Delete actions */}
-      <div className="opacity-100 md:opacity-0 md:group-hover:opacity-100 focus-within:opacity-100 flex items-center gap-1 transition-opacity flex-shrink-0 self-start">
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            e.preventDefault()
-            setIsEditing(true)
-          }}
-          className="p-1 text-neutral-400 hover:text-neutral-700 dark:text-neutral-600 dark:hover:text-neutral-350 rounded cursor-pointer"
-          title="Edit item"
-        >
-          <Edit3 className="w-3.5 h-3.5 stroke-[1.5px]" />
-        </button>
+    <div className="relative overflow-hidden w-full rounded-2xl border border-neutral-200 dark:border-neutral-900 shadow-sm bg-neutral-100 dark:bg-neutral-950/40">
+      {/* Bottom Layer: Action Triggered on Swipe (Reveal Delete) */}
+      <div className="absolute inset-y-0 right-0 w-20 flex items-center justify-center bg-rose-600 z-0">
         <button
           onClick={(e) => {
             e.stopPropagation()
@@ -242,12 +164,113 @@ export function TaskCard({ task }: { task: Task }) {
             handleDelete()
           }}
           disabled={isPending}
-          className="p-1 text-neutral-400 hover:text-rose-500 dark:text-neutral-600 dark:hover:text-rose-450 rounded transition-opacity cursor-pointer"
-          title="Delete task"
+          className="w-full h-full flex items-center justify-center text-white hover:bg-rose-700 active:bg-rose-800 transition-colors cursor-pointer"
+          title="Delete action item"
         >
-          <Trash2 className="w-3.5 h-3.5 stroke-[1.5px]" />
+          <Trash2 className="w-5 h-5 stroke-[2px]" />
         </button>
       </div>
+
+      {/* Top Layer: Draggable Task Content */}
+      <motion.div
+        drag="x"
+        dragConstraints={{ left: -80, right: 0 }}
+        dragElastic={{ left: 0.1, right: 0.02 }}
+        dragMomentum={false}
+        animate={{ x: draggedLeft ? -80 : 0 }}
+        onDragEnd={(event, info) => {
+          if (info.offset.x < -30) {
+            setDraggedLeft(true)
+            triggerHaptic(20)
+          } else {
+            setDraggedLeft(false)
+          }
+        }}
+        className={`p-4 bg-white dark:bg-neutral-900 flex items-start gap-3.5 relative z-10 w-full transition-shadow duration-300 ${
+          optimisticCompleted
+            ? 'opacity-45'
+            : 'hover:shadow-sm'
+        }`}
+      >
+        {/* Satisfying Checkbox */}
+        <motion.button
+          whileTap={{ scale: 0.8 }}
+          onClick={handleToggle}
+          disabled={isPending}
+          className={`mt-0.5 flex-shrink-0 transition-all rounded-full p-0.5 hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer ${
+            optimisticCompleted
+              ? 'text-emerald-500 dark:text-emerald-400'
+              : 'text-neutral-400 hover:text-neutral-600 dark:text-neutral-600 dark:hover:text-neutral-450'
+          }`}
+        >
+          {optimisticCompleted ? (
+            <CheckCircle2 className="w-5 h-5 fill-emerald-50 dark:fill-emerald-950/30 stroke-[2px]" />
+          ) : (
+            <Circle className="w-5 h-5 stroke-[1.5px]" />
+          )}
+        </motion.button>
+
+        {/* Task Details */}
+        <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+          <h4
+            className={`text-sm font-medium leading-snug transition-all duration-300 ${
+              optimisticCompleted
+                ? 'line-through text-neutral-400 dark:text-neutral-550'
+                : 'text-neutral-800 dark:text-neutral-200'
+            }`}
+          >
+            {task.title}
+          </h4>
+
+          {task.description && (
+            <p
+              className={`text-xs leading-relaxed transition-all duration-300 line-clamp-2 ${
+                optimisticCompleted
+                  ? 'text-neutral-400/80 dark:text-neutral-550/80'
+                  : 'text-neutral-500 dark:text-neutral-400'
+              }`}
+            >
+              {task.description}
+            </p>
+          )}
+
+          {/* Due Date & Badges */}
+          {dateInfo && (
+            <div className="flex items-center gap-1.5 mt-1.5">
+              <span
+                className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-semibold font-mono tracking-wide ${
+                  optimisticCompleted
+                    ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-450 dark:text-neutral-550'
+                    : dateInfo.type === 'overdue'
+                    ? 'bg-rose-50 dark:bg-rose-950/30 text-rose-600 dark:text-rose-400'
+                    : dateInfo.type === 'today'
+                    ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-600 dark:text-amber-400'
+                    : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400'
+                }`}
+              >
+                <Calendar className="w-3 h-3 stroke-[1.5px]" />
+                {dateInfo.text}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Edit Action Button */}
+        <div className="flex items-center gap-1.5 flex-shrink-0 self-start">
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+              setIsEditing(true)
+            }}
+            className="p-1 text-neutral-400 hover:text-neutral-700 dark:text-neutral-600 dark:hover:text-neutral-350 rounded cursor-pointer"
+            title="Edit item"
+          >
+            <Edit3 className="w-3.5 h-3.5 stroke-[1.5px]" />
+          </motion.button>
+        </div>
+      </motion.div>
     </div>
   )
 }

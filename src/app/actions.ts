@@ -168,17 +168,178 @@ export async function createTransaction(formData: FormData) {
   const amount = parseFloat(formData.get('amount') as string)
   const type = formData.get('type') as 'income' | 'expense'
   const description = formData.get('description') as string
+  const wallet_name = (formData.get('wallet_name') as string) || 'Cashless'
+  
+  // Backwards compatibility for wallet_type
+  const wallet_type = wallet_name === 'Cash' ? 'Cash' : 'Cashless'
 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error("Unauthorized")
 
   const { error } = await supabase
     .from('transactions')
-    .insert({ amount, type, description, user_id: user.id })
+    .insert({ amount, type, description, wallet_type, wallet_name, user_id: user.id })
 
   if (error) throw new Error(error.message)
   revalidatePath('/finance')
   revalidatePath('/')
+}
+
+export async function getWalletBalances() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  try {
+    const { data: transactions, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', user.id)
+
+    if (error || !transactions) return []
+
+    const balances: Record<string, number> = {}
+    
+    transactions.forEach(tx => {
+      const name = tx.wallet_name || (tx.wallet_type === 'Cash' ? 'Cash' : 'Cashless')
+      const amt = Number(tx.amount)
+      if (!balances[name]) {
+        balances[name] = 0
+      }
+      if (tx.type === 'income') {
+        balances[name] += amt
+      } else {
+        balances[name] -= amt
+      }
+    })
+
+    return Object.entries(balances).map(([name, balance]) => ({
+      name,
+      balance
+    }))
+  } catch (err) {
+    console.error('Error calculating wallet balances:', err)
+    return []
+  }
+}
+
+// Cigarette Inventory Actions
+export async function getActiveCigarettePacks() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  try {
+    const { data, error } = await supabase
+      .from('cigarette_packs')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .gt('remaining_sticks', 0)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching active packs:', error)
+      return []
+    }
+    return data || []
+  } catch (err) {
+    console.error('Error in getActiveCigarettePacks:', err)
+    return []
+  }
+}
+
+export async function restockCigarettePack(formData: FormData) {
+  const supabase = await createClient()
+  const brand = formData.get('brand') as string
+  const initial_sticks = parseInt(formData.get('initial_sticks') as string) || 16
+
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  try {
+    const { error } = await supabase
+      .from('cigarette_packs')
+      .insert({
+        brand,
+        initial_sticks,
+        remaining_sticks: initial_sticks,
+        is_active: true,
+        user_id: user.id
+      })
+
+    if (error) throw new Error(error.message)
+    revalidatePath('/')
+  } catch (err: any) {
+    console.error('Error in restockCigarettePack:', err)
+    throw new Error(err.message || 'Failed to restock pack')
+  }
+}
+
+export async function smokeOneStick(packId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  try {
+    const { data: pack, error: packErr } = await supabase
+      .from('cigarette_packs')
+      .select('remaining_sticks')
+      .eq('id', packId)
+      .single()
+
+    if (packErr || !pack) throw new Error("Pack not found")
+    if (pack.remaining_sticks <= 0) throw new Error("Pack is empty")
+
+    const newRemaining = pack.remaining_sticks - 1
+
+    const { error: updateErr } = await supabase
+      .from('cigarette_packs')
+      .update({
+        remaining_sticks: newRemaining,
+        is_active: newRemaining > 0
+      })
+      .eq('id', packId)
+
+    if (updateErr) throw new Error(updateErr.message)
+
+    const { error: logErr } = await supabase
+      .from('cigarette_logs')
+      .insert({
+        pack_id: packId,
+        user_id: user.id
+      })
+
+    if (logErr) throw new Error(logErr.message)
+    revalidatePath('/')
+  } catch (err: any) {
+    console.error('Error in smokeOneStick:', err)
+    throw new Error(err.message || 'Failed to log smoke')
+  }
+}
+
+export async function getCigaretteLogs() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return []
+
+  try {
+    const { data, error } = await supabase
+      .from('cigarette_logs')
+      .select('id, pack_id, smoked_at, cigarette_packs(brand)')
+      .eq('user_id', user.id)
+      .order('smoked_at', { ascending: false })
+      .limit(100)
+
+    if (error) {
+      console.error('Error fetching logs:', error)
+      return []
+    }
+    return (data || []) as any[]
+  } catch (err) {
+    console.error('Error in getCigaretteLogs:', err)
+    return []
+  }
 }
 
 export async function deleteTransaction(id: string) {

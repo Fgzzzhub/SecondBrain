@@ -3,6 +3,8 @@ import { format } from 'date-fns'
 import Link from 'next/link'
 import { CheckSquare, Calendar, StickyNote, ArrowUpRight } from 'lucide-react'
 import { RabbitHoleWidget } from './components/RabbitHoleWidget'
+import { FinanceOverview } from './components/FinanceOverview'
+import { getWalletBalances } from '@/app/actions'
 
 const quotes = [
   "Simplicity is the ultimate sophistication.",
@@ -14,21 +16,18 @@ const quotes = [
 export default async function DashboardPage() {
   const supabase = await createClient()
   
-  // Fetch statistics
-  const { count: pendingTasks } = await supabase
-    .from('tasks')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_completed', false)
-
-  const { data: schedule } = await supabase
-    .from('schedule')
-    .select('*')
-
-  const { data: notes } = await supabase
-    .from('notes')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(3)
+  // Fetch statistics & tracker data in parallel
+  const [
+    { count: pendingTasks },
+    { data: schedule },
+    { data: notes },
+    walletBalances
+  ] = await Promise.all([
+    supabase.from('tasks').select('*', { count: 'exact', head: true }).eq('is_completed', false),
+    supabase.from('schedule').select('*'),
+    supabase.from('notes').select('*').order('created_at', { ascending: false }).limit(3),
+    getWalletBalances()
+  ])
 
   const todayName = format(new Date(), 'EEEE') // e.g. "Monday"
   const todayClasses = schedule?.filter(s => s.day === todayName) || []
@@ -49,6 +48,11 @@ export default async function DashboardPage() {
           &ldquo;{randomQuote}&rdquo;
         </p>
       </header>
+
+      {/* Top Interactive Trackers */}
+      <div className="grid grid-cols-1 gap-6">
+        <FinanceOverview balances={walletBalances} />
+      </div>
 
       {/* Grid Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -126,7 +130,7 @@ export default async function DashboardPage() {
               ))
             ) : (
               <div className="p-5 text-center rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800">
-                <p className="text-xs text-neutral-500">No notes created yet.</p>
+                <p className="text-xs text-neutral-550 dark:text-neutral-500">No notes created yet.</p>
               </div>
             )}
           </div>

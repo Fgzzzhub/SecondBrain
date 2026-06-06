@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { TaskCard } from './TaskCard'
 import { CheckSquare, Archive } from 'lucide-react'
 import { EmptyState } from '../components/EmptyState'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface Task {
   id: string
@@ -56,24 +57,50 @@ export function TaskList({ tasks = [] }: { tasks: Task[] }) {
         </button>
       </div>
 
-      {/* Task List Container */}
-      <div className="flex flex-col gap-3 min-h-[200px]">
-        {displayedTasks.length > 0 ? (
-          displayedTasks.map(task => (
-            <TaskCard key={task.id} task={task} />
-          ))
-        ) : activeTab === 'active' ? (
-          <EmptyState
-            message="Semua udah beres. Waktunya istirahat atau nongkrong dulu."
-            icon={CheckSquare}
-          />
-        ) : (
-          <EmptyState
-            message="Belum ada yang selesai. Semangat, satu-satu diselesaikan!"
-            icon={Archive}
-          />
-        )}
-      </div>
+      {/* Task List Container with Staggered Entrance */}
+      {displayedTasks.length > 0 ? (
+        <motion.div
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.04
+              }
+            }
+          }}
+          initial="hidden"
+          animate="visible"
+          className="flex flex-col gap-3 min-h-[200px]"
+        >
+          <AnimatePresence mode="popLayout">
+            {displayedTasks.map(task => (
+              <motion.div
+                key={task.id}
+                layout
+                variants={{
+                  hidden: { opacity: 0, y: 15 },
+                  visible: { opacity: 1, y: 0 }
+                }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+              >
+                <TaskCard task={task} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+      ) : activeTab === 'active' ? (
+        <EmptyState
+          message="Semua udah beres. Waktunya istirahat atau nongkrong dulu."
+          icon={CheckSquare}
+        />
+      ) : (
+        <EmptyState
+          message="Belum ada yang selesai. Semangat, satu-satu diselesaikan!"
+          icon={Archive}
+        />
+      )}
     </div>
   )
 }

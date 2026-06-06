@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, CheckSquare, Calendar, StickyNote, Sparkles, MessageSquare, DollarSign, Package, Settings, BookOpen } from 'lucide-react'
+import { LayoutDashboard, CheckSquare, Calendar, StickyNote, Sparkles, MessageSquare, DollarSign, Package, Settings, BookOpen, Cigarette } from 'lucide-react'
 
 // All icons mapped
 export const iconMap = {
@@ -15,7 +15,8 @@ export const iconMap = {
   Finance: DollarSign,
   Inventory: Package,
   Settings: Settings,
-  Manual: BookOpen
+  Manual: BookOpen,
+  Cigarettes: Cigarette
 }
 
 export const navGroups = [
@@ -38,6 +39,7 @@ export const navGroups = [
     title: "LOGISTICS",
     items: [
       { label: "Finance", href: "/finance", icon: "Finance" },
+      { label: "Cigarettes", href: "/cigarettes", icon: "Cigarettes" },
       { label: "Inventory", href: "/inventory", icon: "Inventory" },
     ]
   },
@@ -68,7 +70,7 @@ export function SidebarLinks({ onLinkClick, showOnlyDrawerItems = false }: Sideb
   const { isModuleEnabled, isHydrated } = useSettings()
 
   // Primary tabs (displayed directly in the bottom nav)
-  const primaryHrefs = ["/", "/tasks", "/timeline", "/notes"]
+  const primaryHrefs = ["/", "/finance", "/cigarettes", "/tasks"]
 
   const isEnabled = (href: string) => {
     if (href === '/schedule') return isModuleEnabled('schedule')

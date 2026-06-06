@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Download, X, Share } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export function InstallPWA() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
@@ -71,48 +72,66 @@ export function InstallPWA() {
           <Download className="w-4 h-4 stroke-[2px]" />
           Install Second Brain App
         </button>
-        <p className="text-[10px] text-neutral-500 mt-2 text-center">
+        <p className="text-[10px] text-neutral-550 mt-2 text-center">
           Install the app on your device for offline access and full PWA features.
         </p>
       </div>
 
       {/* iOS Instructions Modal */}
-      {showiOSModal && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-[10050] flex items-center justify-center p-4">
-          <div className="w-full max-w-xs p-6 bg-neutral-900 dark:bg-neutral-900 border border-neutral-800 rounded-2xl flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200 relative z-10">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-white">Install on iOS</span>
+      <AnimatePresence>
+        {showiOSModal && (
+          <div className="fixed inset-0 z-[10050] flex items-center justify-center p-4">
+            {/* Backdrop Fade-in */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowiOSModal(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-md cursor-pointer"
+            />
+            
+            {/* Modal Card Spring Bounce */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.93, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.93, y: 15 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 26 }}
+              className="w-full max-w-xs p-6 bg-neutral-900 border border-neutral-800 rounded-2xl flex flex-col gap-4 relative z-10 shadow-2xl"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-semibold text-white">Install on iOS</span>
+                <button
+                  onClick={() => setShowiOSModal(false)}
+                  className="text-neutral-450 hover:text-white p-1 rounded-md transition-colors"
+                >
+                  <X className="w-4 h-4 stroke-[1.5px]" />
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-3 text-xs text-neutral-300">
+                <p className="leading-relaxed">
+                  To install this application on your iPhone or iPad:
+                </p>
+                <ol className="list-decimal pl-4 flex flex-col gap-2">
+                  <li className="pl-1">
+                    Tap the <strong className="text-white inline-flex items-center gap-1 font-semibold">Share icon <Share className="w-3.5 h-3.5 inline-block text-indigo-400 stroke-[1.5px]" /></strong> in Safari's bottom toolbar.
+                  </li>
+                  <li className="pl-1">
+                    Scroll down and tap <strong className="text-white font-semibold">"Add to Home Screen"</strong>.
+                  </li>
+                </ol>
+              </div>
+
               <button
                 onClick={() => setShowiOSModal(false)}
-                className="text-neutral-400 hover:text-white p-1 rounded-md transition-colors"
+                className="w-full py-2 bg-neutral-800 hover:bg-neutral-700 text-white text-xs font-medium rounded-lg transition-colors cursor-pointer"
               >
-                <X className="w-4 h-4 stroke-[1.5px]" />
+                Got it
               </button>
-            </div>
-
-            <div className="flex flex-col gap-3 text-xs text-neutral-300">
-              <p className="leading-relaxed">
-                To install this application on your iPhone or iPad:
-              </p>
-              <ol className="list-decimal pl-4 flex flex-col gap-2">
-                <li className="pl-1">
-                  Tap the <strong className="text-white inline-flex items-center gap-1 font-semibold">Share icon <Share className="w-3.5 h-3.5 inline-block text-indigo-400 stroke-[1.5px]" /></strong> in Safari's bottom toolbar.
-                </li>
-                <li className="pl-1">
-                  Scroll down and tap <strong className="text-white font-semibold">"Add to Home Screen"</strong>.
-                </li>
-              </ol>
-            </div>
-
-            <button
-              onClick={() => setShowiOSModal(false)}
-              className="w-full py-2 bg-neutral-800 hover:bg-neutral-700 text-white text-xs font-medium rounded-lg transition-colors cursor-pointer"
-            >
-              Got it
-            </button>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </>
   )
 }

@@ -3,16 +3,16 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, CheckSquare, Sparkles, StickyNote, Menu, X, LogOut } from 'lucide-react'
+import { Home, DollarSign, Cigarette, CheckSquare, Menu, X, LogOut } from 'lucide-react'
 import { SidebarLinks } from './SidebarLinks'
 import { triggerHaptic } from '@/lib/haptic'
 import { createClient } from '@/lib/supabase/client'
 
 const primaryNav = [
-  { icon: LayoutDashboard, label: "Home", href: "/" },
+  { icon: Home, label: "Home", href: "/" },
+  { icon: DollarSign, label: "Finance", href: "/finance" },
+  { icon: Cigarette, label: "Cigarettes", href: "/cigarettes" },
   { icon: CheckSquare, label: "Tasks", href: "/tasks" },
-  { icon: Sparkles, label: "Timeline", href: "/timeline" },
-  { icon: StickyNote, label: "Notes", href: "/notes" },
 ]
 
 export function BottomNav() {

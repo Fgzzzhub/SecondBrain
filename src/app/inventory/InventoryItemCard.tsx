@@ -4,6 +4,8 @@ import { useState, useTransition } from 'react'
 import { updateInventoryItem, deleteInventoryItem } from '@/app/actions'
 import { Trash2, Package, MapPin, Edit3, Check, X, Layers } from 'lucide-react'
 import { triggerHaptic } from '@/lib/haptic'
+import { motion } from 'framer-motion'
+import { AnimatedSelect } from '@/app/components/ui/AnimatedSelect'
 
 interface InventoryItem {
   id: string
@@ -106,7 +108,7 @@ export function InventoryItemCard({ item }: InventoryItemCardProps) {
               value={editQuantity}
               onChange={(e) => setEditQuantity(parseInt(e.target.value) || 1)}
               min="1"
-              className="w-full bg-transparent text-xs text-neutral-700 dark:text-neutral-300 outline-none border-b border-neutral-200 dark:border-neutral-800 focus:border-neutral-400 dark:focus:border-neutral-600 pb-1"
+              className="w-full bg-transparent text-xs text-neutral-700 dark:text-neutral-350 outline-none border-b border-neutral-200 dark:border-neutral-800 focus:border-neutral-400 dark:focus:border-neutral-600 pb-1"
             />
           </div>
 
@@ -116,7 +118,7 @@ export function InventoryItemCard({ item }: InventoryItemCardProps) {
               type="text"
               value={editLocation}
               onChange={(e) => setEditLocation(e.target.value)}
-              className="w-full bg-transparent text-xs text-neutral-700 dark:text-neutral-300 outline-none border-b border-neutral-200 dark:border-neutral-800 focus:border-neutral-400 dark:focus:border-neutral-600 pb-1"
+              className="w-full bg-transparent text-xs text-neutral-700 dark:text-neutral-350 outline-none border-b border-neutral-200 dark:border-neutral-800 focus:border-neutral-400 dark:focus:border-neutral-600 pb-1"
               placeholder="e.g. Shelf A"
             />
           </div>
@@ -125,35 +127,37 @@ export function InventoryItemCard({ item }: InventoryItemCardProps) {
         {/* Status Dropdown */}
         <div className="flex flex-col gap-1">
           <label className="text-[9px] text-neutral-400 uppercase">Status</label>
-          <select
+          <AnimatedSelect
             value={editStatus}
-            onChange={(e) => setEditStatus(e.target.value)}
-            className="bg-neutral-50 dark:bg-neutral-900 text-xs text-neutral-850 dark:text-neutral-200 border border-neutral-200 dark:border-neutral-800 rounded p-1 outline-none cursor-pointer"
-          >
-            <option value="Normal">Normal</option>
-            <option value="Borrowed">Borrowed</option>
-            <option value="Broken">Broken</option>
-          </select>
+            onChange={(val) => setEditStatus(val)}
+            options={[
+              { value: 'Normal', label: 'Normal' },
+              { value: 'Borrowed', label: 'Borrowed' },
+              { value: 'Broken', label: 'Broken' }
+            ]}
+          />
         </div>
 
         {/* Action buttons */}
         <div className="flex justify-end gap-2 mt-2">
-          <button
+          <motion.button
+            whileTap={{ scale: 0.9 }}
             onClick={handleCancel}
             disabled={isPending}
             className="p-1.5 rounded-lg border border-neutral-200 dark:border-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-900/40 text-neutral-500 transition-colors cursor-pointer"
             title="Cancel"
           >
             <X className="w-3.5 h-3.5" />
-          </button>
-          <button
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.9 }}
             onClick={handleSave}
             disabled={isPending}
             className="p-1.5 rounded-lg bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 hover:opacity-90 transition-opacity cursor-pointer"
             title="Save"
           >
             <Check className="w-3.5 h-3.5" />
-          </button>
+          </motion.button>
         </div>
       </div>
     )
@@ -176,7 +180,8 @@ export function InventoryItemCard({ item }: InventoryItemCardProps) {
 
           {/* Edit / Delete actions */}
           <div className="opacity-100 md:opacity-0 md:group-hover:opacity-100 focus-within:opacity-100 flex items-center gap-1 transition-opacity">
-            <button
+            <motion.button
+              whileTap={{ scale: 0.85 }}
               onClick={(e) => {
                 e.stopPropagation()
                 e.preventDefault()
@@ -186,8 +191,9 @@ export function InventoryItemCard({ item }: InventoryItemCardProps) {
               title="Edit item"
             >
               <Edit3 className="w-3.5 h-3.5 stroke-[1.5px]" />
-            </button>
-            <button
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.85 }}
               onClick={(e) => {
                 e.stopPropagation()
                 e.preventDefault()
@@ -198,7 +204,7 @@ export function InventoryItemCard({ item }: InventoryItemCardProps) {
               title="Delete item"
             >
               <Trash2 className="w-3.5 h-3.5 stroke-[1.5px]" />
-            </button>
+            </motion.button>
           </div>
         </div>
 
