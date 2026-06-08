@@ -229,7 +229,11 @@ export function CigaretteManager({ initialActivePacks, initialTodayLogs }: Cigar
     setLoadingManual(true)
 
     try {
-      await logCigaretteManually(selectedPackId, customTimestamp)
+      const localDate = new Date(customTimestamp)
+      if (isNaN(localDate.getTime())) {
+        throw new Error('Invalid date')
+      }
+      await logCigaretteManually(selectedPackId, localDate.toISOString())
       setShowManualLog(false)
       // Refresh state from page reload
       window.location.reload()
