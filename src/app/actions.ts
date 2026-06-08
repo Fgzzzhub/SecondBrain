@@ -167,6 +167,55 @@ export async function deleteScheduleItem(itemId: string) {
   revalidatePath('/')
 }
 
+// Helper to insert a transaction with self-healing fallback for schema mismatch
+async function insertTransactionWithFallback(
+  supabase: any,
+  data: {
+    amount: number
+    type: 'income' | 'expense'
+    description: string
+    wallet_type: string
+    wallet_name: string
+    category: string
+    user_id: string
+  }
+) {
+  const insertPayload = { ...data }
+
+  while (true) {
+    const { error } = await supabase
+      .from('transactions')
+      .insert(insertPayload)
+
+    if (!error) {
+      return { error: null }
+    }
+
+    // Check for PostgREST undefined column error (code 42703)
+    if (error.code === '42703') {
+      let columnRemoved = false
+
+      if (insertPayload.wallet_type && error.message.includes('wallet_type')) {
+        delete (insertPayload as any).wallet_type
+        columnRemoved = true
+      } else if (insertPayload.wallet_name && error.message.includes('wallet_name')) {
+        delete (insertPayload as any).wallet_name
+        columnRemoved = true
+      } else if (insertPayload.category && error.message.includes('category')) {
+        delete (insertPayload as any).category
+        columnRemoved = true
+      }
+
+      if (columnRemoved) {
+        console.warn(`Retrying transaction insert after removing column: ${error.message}`)
+        continue
+      }
+    }
+
+    return { error }
+  }
+}
+
 // Finance Actions
 export async function createTransaction(formData: FormData) {
   const supabase = await createClient()
@@ -182,9 +231,15 @@ export async function createTransaction(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error("Unauthorized")
 
-  const { error } = await supabase
-    .from('transactions')
-    .insert({ amount, type, description, wallet_type, wallet_name, category, user_id: user.id })
+  const { error } = await insertTransactionWithFallback(supabase, {
+    amount,
+    type,
+    description,
+    wallet_type,
+    wallet_name,
+    category,
+    user_id: user.id
+  })
 
   if (error) throw new Error(error.message)
   revalidatePath('/finance')
@@ -821,17 +876,15 @@ export async function calibrateWallet(walletName: string, targetBalance: number)
   const amount = Math.abs(difference)
   const wallet_type = walletName === 'Cash' ? 'Cash' : 'Cashless'
 
-  const { error: insertErr } = await supabase
-    .from('transactions')
-    .insert({
-      amount,
-      type,
-      description: 'SYSTEM_CALIBRATION',
-      wallet_type,
-      wallet_name: walletName,
-      category: 'Lainnya',
-      user_id: user.id
-    })
+  const { error: insertErr } = await insertTransactionWithFallback(supabase, {
+    amount,
+    type,
+    description: 'SYSTEM_CALIBRATION',
+    wallet_type,
+    wallet_name: walletName,
+    category: 'Lainnya',
+    user_id: user.id
+  })
 
   if (insertErr) throw new Error(insertErr.message)
 

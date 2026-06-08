@@ -25,8 +25,9 @@ export function AddTransactionForm() {
       setWalletName('Cash')
       setCustomWalletName('')
       setCategory('Lainnya')
-    } catch {
-      alert('Failed to log transaction')
+    } catch (err: any) {
+      console.error(err)
+      alert(`Failed to log transaction: ${err?.message || err}`)
     } finally {
       setLoading(false)
     }

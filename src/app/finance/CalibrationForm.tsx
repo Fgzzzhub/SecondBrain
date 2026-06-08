@@ -34,9 +34,9 @@ export function CalibrationForm() {
       setTargetBalance('')
       setWalletName('Cash')
       setCustomWalletName('')
-    } catch (err) {
+    } catch (err: any) {
       console.error(err)
-      alert('Failed to calibrate wallet balance')
+      alert(`Failed to calibrate wallet balance: ${err?.message || err}`)
     } finally {
       setLoading(false)
     }
