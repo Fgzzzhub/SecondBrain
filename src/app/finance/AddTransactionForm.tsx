@@ -12,6 +12,7 @@ export function AddTransactionForm() {
   const [transactionType, setTransactionType] = useState('expense')
   const [walletName, setWalletName] = useState('Cash')
   const [customWalletName, setCustomWalletName] = useState('')
+  const [category, setCategory] = useState('Lainnya')
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -23,7 +24,8 @@ export function AddTransactionForm() {
       setTransactionType('expense')
       setWalletName('Cash')
       setCustomWalletName('')
-    } catch (err) {
+      setCategory('Lainnya')
+    } catch {
       alert('Failed to log transaction')
     } finally {
       setLoading(false)
@@ -63,6 +65,7 @@ export function AddTransactionForm() {
                   setTransactionType('expense')
                   setWalletName('Cash')
                   setCustomWalletName('')
+                  setCategory('Lainnya')
                 }}
                 className="text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors cursor-pointer"
               >
@@ -96,6 +99,24 @@ export function AddTransactionForm() {
                     className="bg-neutral-50 dark:bg-neutral-900 text-xs text-neutral-800 dark:text-white border border-neutral-200 dark:border-neutral-800 rounded-lg p-2 outline-none w-full"
                   />
                 </div>
+              </div>
+
+              {/* Category Selection */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] text-neutral-400 dark:text-neutral-500 uppercase font-semibold">Category</label>
+                <AnimatedSelect
+                  value={category}
+                  onChange={(val) => setCategory(val)}
+                  options={[
+                    { value: 'F&B / Nongkrong', label: 'F&B / Nongkrong' },
+                    { value: 'Transport / Bensin', label: 'Transport / Bensin' },
+                    { value: 'Belanja / Bulanan', label: 'Belanja / Bulanan' },
+                    { value: 'Hobi / Hiburan', label: 'Hobi / Hiburan' },
+                    { value: 'Tabungan / Investasi', label: 'Tabungan / Investasi' },
+                    { value: 'Lainnya', label: 'Lainnya' }
+                  ]}
+                />
+                <input type="hidden" name="category" value={category} />
               </div>
 
               {/* Wallet Name Selection */}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import React, { useState, useTransition } from 'react'
 import { toggleTaskCompletion, deleteTask, updateTask } from '@/app/actions'
 import { Calendar, Trash2, CheckCircle2, Circle, Edit3, Check, X } from 'lucide-react'
 import { triggerHaptic } from '@/lib/haptic'
@@ -15,11 +15,12 @@ interface Task {
   created_at: string
 }
 
-export function TaskCard({ task }: { task: Task }) {
+export const TaskCard = React.memo(function TaskCard({ task }: { task: Task }) {
   const [isPending, startTransition] = useTransition()
   const [optimisticCompleted, setOptimisticCompleted] = useState(task.is_completed)
   const [isEditing, setIsEditing] = useState(false)
   const [draggedLeft, setDraggedLeft] = useState(false)
+  const [dragDir, setDragDir] = useState<'none' | 'left' | 'right'>('none')
 
   // Edit fields state
   const [editTitle, setEditTitle] = useState(task.title)
@@ -36,6 +37,20 @@ export function TaskCard({ task }: { task: Task }) {
       } catch {
         setOptimisticCompleted(!nextVal)
         alert('Failed to update task')
+      }
+    })
+  }
+
+  const handleComplete = () => {
+    if (optimisticCompleted) return
+    triggerHaptic(30)
+    setOptimisticCompleted(true)
+    startTransition(async () => {
+      try {
+        await toggleTaskCompletion(task.id, true)
+      } catch {
+        setOptimisticCompleted(false)
+        alert('Failed to complete task')
       }
     })
   }
@@ -154,36 +169,69 @@ export function TaskCard({ task }: { task: Task }) {
   }
 
   return (
-    <div className="relative overflow-hidden w-full rounded-2xl border border-neutral-200 dark:border-neutral-900 shadow-sm bg-neutral-100 dark:bg-neutral-950/40">
-      {/* Bottom Layer: Action Triggered on Swipe (Reveal Delete) */}
-      <div className="absolute inset-y-0 right-0 w-20 flex items-center justify-center bg-rose-600 z-0">
-        <button
-          onClick={(e) => {
-            e.stopPropagation()
-            e.preventDefault()
-            handleDelete()
-          }}
-          disabled={isPending}
-          className="w-full h-full flex items-center justify-center text-white hover:bg-rose-700 active:bg-rose-800 transition-colors cursor-pointer"
-          title="Delete action item"
+    <div className="relative overflow-hidden w-full rounded-2xl border border-neutral-250 dark:border-neutral-900 shadow-sm bg-neutral-100 dark:bg-neutral-950/40">
+      {/* Bottom Layer: Dual-Sided Background Actions */}
+      <div className="absolute inset-0 z-0">
+        {/* Left Side: Emerald background (Complete) revealed when dragging Right */}
+        <div
+          className="absolute inset-0 bg-emerald-600 flex items-center justify-start pl-6 text-white transition-opacity duration-150"
+          style={{ opacity: !draggedLeft && dragDir === 'right' ? 1 : 0 }}
         >
-          <Trash2 className="w-5 h-5 stroke-[2px]" />
-        </button>
+          <Check className="w-5 h-5 stroke-[2.5px]" />
+        </div>
+
+        {/* Right Side: Rose background (Delete) revealed when dragging Left */}
+        <div
+          className="absolute inset-0 bg-rose-600 flex items-center justify-end pr-6 text-white transition-opacity duration-150"
+          style={{ opacity: draggedLeft || dragDir === 'left' ? 1 : 0 }}
+        >
+          <Trash2 className="w-5 h-5 stroke-[2.5px]" />
+        </div>
+
+        {/* Trash Clickable Action Button (revealed on Left swipe) */}
+        {(draggedLeft || dragDir === 'left') && (
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+              handleDelete()
+            }}
+            disabled={isPending}
+            className="absolute right-0 top-0 bottom-0 w-20 z-20 flex items-center justify-center text-white cursor-pointer"
+            title="Delete task"
+          >
+            {/* Click area overlays the Trash icon */}
+          </motion.button>
+        )}
       </div>
 
       {/* Top Layer: Draggable Task Content */}
       <motion.div
         drag="x"
-        dragConstraints={{ left: -80, right: 0 }}
-        dragElastic={{ left: 0.1, right: 0.02 }}
+        dragConstraints={{ left: -80, right: 80 }}
+        dragElastic={0.1}
         dragMomentum={false}
         animate={{ x: draggedLeft ? -80 : 0 }}
+        onDrag={(event, info) => {
+          if (info.offset.x > 5) {
+            setDragDir('right')
+          } else if (info.offset.x < -5) {
+            setDragDir('left')
+          }
+        }}
         onDragEnd={(event, info) => {
-          if (info.offset.x < -30) {
+          if (info.offset.x > 60) {
+            handleComplete()
+            setDraggedLeft(false)
+            setDragDir('none')
+          } else if (info.offset.x < -60) {
             setDraggedLeft(true)
+            setDragDir('left')
             triggerHaptic(20)
           } else {
             setDraggedLeft(false)
+            setDragDir('none')
           }
         }}
         className={`p-4 bg-white dark:bg-neutral-900 flex items-start gap-3.5 relative z-10 w-full transition-shadow duration-300 ${
@@ -273,4 +321,4 @@ export function TaskCard({ task }: { task: Task }) {
       </motion.div>
     </div>
   )
-}
+})

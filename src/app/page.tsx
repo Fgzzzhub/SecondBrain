@@ -5,6 +5,7 @@ import { CheckSquare, Calendar, StickyNote, ArrowUpRight } from 'lucide-react'
 import { RabbitHoleWidget } from './components/RabbitHoleWidget'
 import { FinanceOverview } from './components/FinanceOverview'
 import { getWalletBalances } from '@/app/actions'
+import { DailyBriefing } from './components/DailyBriefing'
 
 const quotes = [
   "Simplicity is the ultimate sophistication.",
@@ -15,24 +16,46 @@ const quotes = [
 
 export default async function DashboardPage() {
   const supabase = await createClient()
-  
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return null
+
+  // Calculate local bounds of today
+  const startOfToday = new Date()
+  startOfToday.setHours(0, 0, 0, 0)
+  const startOfTodayStr = startOfToday.toISOString()
+
+  const endOfToday = new Date()
+  endOfToday.setHours(23, 59, 59, 999)
+  const endOfTodayStr = endOfToday.toISOString()
+
   // Fetch statistics & tracker data in parallel
   const [
     { count: pendingTasks },
     { data: schedule },
     { data: notes },
-    walletBalances
+    walletBalances,
+    { count: tasksCompletedToday },
+    { data: todayExpensesData },
+    { count: cigarettesToday }
   ] = await Promise.all([
-    supabase.from('tasks').select('*', { count: 'exact', head: true }).eq('is_completed', false),
+    supabase.from('tasks').select('*', { count: 'exact', head: true }).eq('is_completed', false).eq('user_id', user.id),
     supabase.from('schedule').select('*'),
     supabase.from('notes').select('*').order('created_at', { ascending: false }).limit(3),
-    getWalletBalances()
+    getWalletBalances(),
+    supabase.from('tasks').select('*', { count: 'exact', head: true }).eq('is_completed', true).eq('user_id', user.id).gte('completed_at', startOfTodayStr).lte('completed_at', endOfTodayStr),
+    supabase.from('transactions').select('amount').eq('user_id', user.id).eq('type', 'expense').gte('created_at', startOfTodayStr).lte('created_at', endOfTodayStr),
+    supabase.from('cigarette_logs').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('smoked_at', startOfTodayStr).lte('smoked_at', endOfTodayStr)
   ])
 
   const todayName = format(new Date(), 'EEEE') // e.g. "Monday"
   const todayClasses = schedule?.filter(s => s.day === todayName) || []
   
-  const randomQuote = quotes[Math.floor(Math.random() * quotes.length)]
+  const dayIndex = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].indexOf(todayName)
+  const quoteIndex = dayIndex >= 0 ? dayIndex % quotes.length : 0
+  const randomQuote = quotes[quoteIndex]
+
+  const todayExpensesSum = (todayExpensesData || []).reduce((sum, tx) => sum + Number(tx.amount), 0)
 
   return (
     <div className="flex flex-col gap-10">
@@ -48,6 +71,13 @@ export default async function DashboardPage() {
           &ldquo;{randomQuote}&rdquo;
         </p>
       </header>
+
+      {/* Daily Briefing Widget */}
+      <DailyBriefing
+        tasksCompleted={tasksCompletedToday || 0}
+        todayExpenses={todayExpensesSum}
+        cigarettesSmoked={cigarettesToday || 0}
+      />
 
       {/* Top Interactive Trackers */}
       <div className="grid grid-cols-1 gap-6">
@@ -91,7 +121,7 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Today's Schedule */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-xs font-semibold tracking-wider text-neutral-400 dark:text-neutral-500 uppercase">Today's Schedule</h2>
+          <h2 className="text-xs font-semibold tracking-wider text-neutral-400 dark:text-neutral-500 uppercase">Today&apos;s Schedule</h2>
           <div className="flex flex-col gap-3">
             {todayClasses.length > 0 ? (
               todayClasses.map((cls) => (

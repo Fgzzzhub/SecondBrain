@@ -1,9 +1,27 @@
 import { createClient } from '@/lib/supabase/server'
 import { AddTransactionForm } from './AddTransactionForm'
+import { CalibrationForm } from './CalibrationForm'
 import { TransactionList } from './TransactionList'
 import { Wallet, Banknote, CreditCard } from 'lucide-react'
 import { MonthSelector } from '../components/MonthSelector'
-import { format, parse } from 'date-fns'
+import { format } from 'date-fns'
+import { getWalletBalances } from '@/app/actions'
+import dynamic from 'next/dynamic'
+
+const ExpenseChart = dynamic(() => import('./ExpenseChart').then(mod => mod.ExpenseChart), {
+  loading: () => <div className="h-40 w-full animate-pulse bg-neutral-900/10 rounded-2xl border border-neutral-900" />
+})
+
+interface Transaction {
+  id: string
+  amount: number
+  type: 'income' | 'expense'
+  description: string
+  created_at: string
+  wallet_type?: 'Cash' | 'Cashless'
+  wallet_name?: string
+  category?: string
+}
 
 export default async function FinancePage({
   searchParams
@@ -14,48 +32,38 @@ export default async function FinancePage({
   const currentMonthStr = params.month || format(new Date(), 'yyyy-MM')
 
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return null
   
-  // Fetch all transactions to compute correct net worth and balances
-  const { data: allTransactions } = await supabase
-    .from('transactions')
-    .select('*')
-    .order('created_at', { ascending: false })
+  // Parse year and month to query only current month's transactions
+  const [year, month] = currentMonthStr.split('-').map(Number)
+  const nextMonthStr = month === 12
+    ? `${year + 1}-01`
+    : `${year}-${String(month + 1).padStart(2, '0')}`
 
-  const typedAllTransactions = (allTransactions || []) as any[]
+  // Fetch only selected month transactions & all-time wallet balances in parallel
+  const [walletBalances, { data: monthlyTransactions }] = await Promise.all([
+    getWalletBalances(),
+    supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', user.id)
+      .gte('created_at', `${currentMonthStr}-01T00:00:00`)
+      .lt('created_at', `${nextMonthStr}-01T00:00:00`)
+      .order('created_at', { ascending: false })
+  ])
 
-  // Compute all-time balance metrics
-  // Cash balances
-  const cashTransactions = typedAllTransactions.filter(tx => tx.wallet_type === 'Cash')
-  const cashIncome = cashTransactions
-    .filter(tx => tx.type === 'income')
-    .reduce((sum, tx) => sum + Number(tx.amount), 0)
-  const cashExpense = cashTransactions
-    .filter(tx => tx.type === 'expense')
-    .reduce((sum, tx) => sum + Number(tx.amount), 0)
-  const cashBalance = cashIncome - cashExpense
+  const typedMonthlyTransactions = (monthlyTransactions || []) as Transaction[]
 
-  // Cashless balances
-  const cashlessTransactions = typedAllTransactions.filter(tx => tx.wallet_type !== 'Cash')
-  const cashlessIncome = cashlessTransactions
-    .filter(tx => tx.type === 'income')
-    .reduce((sum, tx) => sum + Number(tx.amount), 0)
-  const cashlessExpense = cashlessTransactions
-    .filter(tx => tx.type === 'expense')
-    .reduce((sum, tx) => sum + Number(tx.amount), 0)
-  const cashlessBalance = cashlessIncome - cashlessExpense
+  // Compute balance metrics from wallet balances (all-time)
+  const cashBalance = walletBalances.find(w => w.name === 'Cash')?.balance || 0
+  const cashlessBalance = walletBalances
+    .filter(w => w.name !== 'Cash')
+    .reduce((sum, w) => sum + w.balance, 0)
 
   // Total net worth
   const netBalance = cashBalance + cashlessBalance
-
-  // Filter transactions for the selected month
-  const monthlyTransactions = typedAllTransactions.filter(tx => {
-    try {
-      const txMonth = format(new Date(tx.created_at), 'yyyy-MM')
-      return txMonth === currentMonthStr
-    } catch (e) {
-      return false
-    }
-  })
 
   return (
     <div className="flex flex-col gap-8 h-full">
@@ -66,6 +74,9 @@ export default async function FinancePage({
         </div>
         <MonthSelector currentMonth={currentMonthStr} />
       </header>
+
+      {/* Expense Category Analytics */}
+      <ExpenseChart transactions={typedMonthlyTransactions} selectedMonthStr={currentMonthStr} />
 
       {/* Grid Summaries */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -110,14 +121,15 @@ export default async function FinancePage({
       </div>
 
       {/* Add form */}
-      <div className="max-w-md">
+      <div className="max-w-md flex flex-col gap-2">
         <AddTransactionForm />
+        <CalibrationForm />
       </div>
 
       {/* List */}
       <div className="flex flex-col gap-3">
         <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">Transaction History</h3>
-        <TransactionList transactions={monthlyTransactions} />
+        <TransactionList transactions={typedMonthlyTransactions} />
       </div>
     </div>
   )

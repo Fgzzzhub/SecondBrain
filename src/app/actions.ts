@@ -31,9 +31,14 @@ export async function createTask(formData: FormData) {
 export async function toggleTaskCompletion(taskId: string, is_completed: boolean) {
   const supabase = await createClient()
   
+  const updateData = {
+    is_completed,
+    completed_at: is_completed ? new Date().toISOString() : null
+  }
+
   const { error } = await supabase
     .from('tasks')
-    .update({ is_completed })
+    .update(updateData)
     .eq('id', taskId)
 
   if (error) throw new Error(error.message)
@@ -169,6 +174,7 @@ export async function createTransaction(formData: FormData) {
   const type = formData.get('type') as 'income' | 'expense'
   const description = formData.get('description') as string
   const wallet_name = (formData.get('wallet_name') as string) || 'Cashless'
+  const category = (formData.get('category') as string) || 'Lainnya'
   
   // Backwards compatibility for wallet_type
   const wallet_type = wallet_name === 'Cash' ? 'Cash' : 'Cashless'
@@ -178,7 +184,7 @@ export async function createTransaction(formData: FormData) {
 
   const { error } = await supabase
     .from('transactions')
-    .insert({ amount, type, description, wallet_type, wallet_name, user_id: user.id })
+    .insert({ amount, type, description, wallet_type, wallet_name, category, user_id: user.id })
 
   if (error) throw new Error(error.message)
   revalidatePath('/finance')
@@ -270,9 +276,10 @@ export async function restockCigarettePack(formData: FormData) {
 
     if (error) throw new Error(error.message)
     revalidatePath('/')
-  } catch (err: any) {
+  } catch (err) {
     console.error('Error in restockCigarettePack:', err)
-    throw new Error(err.message || 'Failed to restock pack')
+    const message = err instanceof Error ? err.message : 'Failed to restock pack'
+    throw new Error(message)
   }
 }
 
@@ -307,14 +314,105 @@ export async function smokeOneStick(packId: string) {
       .from('cigarette_logs')
       .insert({
         pack_id: packId,
-        user_id: user.id
+        user_id: user.id,
+        log_type: 'self'
       })
 
     if (logErr) throw new Error(logErr.message)
     revalidatePath('/')
-  } catch (err: any) {
+  } catch (err) {
     console.error('Error in smokeOneStick:', err)
-    throw new Error(err.message || 'Failed to log smoke')
+    const message = err instanceof Error ? err.message : 'Failed to log smoke'
+    throw new Error(message)
+  }
+}
+
+export async function logCigaretteManually(packId: string, smokedAt: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  try {
+    const { data: pack, error: packErr } = await supabase
+      .from('cigarette_packs')
+      .select('remaining_sticks')
+      .eq('id', packId)
+      .single()
+
+    if (packErr || !pack) throw new Error("Pack not found")
+    if (pack.remaining_sticks <= 0) throw new Error("Pack is empty")
+
+    const newRemaining = pack.remaining_sticks - 1
+
+    const { error: updateErr } = await supabase
+      .from('cigarette_packs')
+      .update({
+        remaining_sticks: newRemaining,
+        is_active: newRemaining > 0
+      })
+      .eq('id', packId)
+
+    if (updateErr) throw new Error(updateErr.message)
+
+    const { error: logErr } = await supabase
+      .from('cigarette_logs')
+      .insert({
+        pack_id: packId,
+        user_id: user.id,
+        smoked_at: new Date(smokedAt).toISOString(),
+        log_type: 'self'
+      })
+
+    if (logErr) throw new Error(logErr.message)
+    revalidatePath('/')
+  } catch (err) {
+    console.error('Error in logCigaretteManually:', err)
+    const message = err instanceof Error ? err.message : 'Failed to log cigarette manually'
+    throw new Error(message)
+  }
+}
+
+export async function shareCigarette(packId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  try {
+    const { data: pack, error: packErr } = await supabase
+      .from('cigarette_packs')
+      .select('remaining_sticks')
+      .eq('id', packId)
+      .single()
+
+    if (packErr || !pack) throw new Error("Pack not found")
+    if (pack.remaining_sticks <= 0) throw new Error("Pack is empty")
+
+    const newRemaining = pack.remaining_sticks - 1
+
+    const { error: updateErr } = await supabase
+      .from('cigarette_packs')
+      .update({
+        remaining_sticks: newRemaining,
+        is_active: newRemaining > 0
+      })
+      .eq('id', packId)
+
+    if (updateErr) throw new Error(updateErr.message)
+
+    const { error: logErr } = await supabase
+      .from('cigarette_logs')
+      .insert({
+        pack_id: packId,
+        user_id: user.id,
+        log_type: 'shared'
+      })
+
+    if (logErr) throw new Error(logErr.message)
+    revalidatePath('/')
+  } catch (err) {
+    console.error('Error in shareCigarette:', err)
+    const message = err instanceof Error ? err.message : 'Failed to share cigarette'
+    throw new Error(message)
   }
 }
 
@@ -326,21 +424,72 @@ export async function getCigaretteLogs() {
   try {
     const { data, error } = await supabase
       .from('cigarette_logs')
-      .select('id, pack_id, smoked_at, cigarette_packs(brand)')
+      .select('id, pack_id, smoked_at, log_type, cigarette_packs(brand)')
       .eq('user_id', user.id)
       .order('smoked_at', { ascending: false })
-      .limit(100)
+      .limit(50)
 
     if (error) {
       console.error('Error fetching logs:', error)
       return []
     }
-    return (data || []) as any[]
+    return (data || []) as unknown as {
+      id: string
+      pack_id: string
+      smoked_at: string
+      log_type: 'self' | 'shared'
+      cigarette_packs: { brand: string } | null
+    }[]
   } catch (err) {
     console.error('Error in getCigaretteLogs:', err)
     return []
   }
 }
+
+export async function deleteCigaretteLog(logId: string, packId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  try {
+    // 1. Get the current pack to see remaining_sticks
+    const { data: pack, error: packErr } = await supabase
+      .from('cigarette_packs')
+      .select('remaining_sticks, initial_sticks')
+      .eq('id', packId)
+      .single()
+
+    if (packErr) throw new Error("Pack not found")
+
+    // 2. Increment the stock
+    const newRemaining = pack.remaining_sticks + 1
+
+    const { error: updateErr } = await supabase
+      .from('cigarette_packs')
+      .update({
+        remaining_sticks: newRemaining,
+        is_active: true
+      })
+      .eq('id', packId)
+
+    if (updateErr) throw new Error(updateErr.message)
+
+    // 3. Delete the log
+    const { error: deleteErr } = await supabase
+      .from('cigarette_logs')
+      .delete()
+      .eq('id', logId)
+
+    if (deleteErr) throw new Error(deleteErr.message)
+
+    revalidatePath('/')
+  } catch (err) {
+    console.error('Error in deleteCigaretteLog:', err)
+    const message = err instanceof Error ? err.message : 'Failed to delete cigarette log'
+    throw new Error(message)
+  }
+}
+
 
 export async function deleteTransaction(id: string) {
   const supabase = await createClient()
@@ -637,6 +786,57 @@ export async function deleteComment(commentId: string) {
 
   if (error) throw new Error(error.message)
   revalidatePath('/forum')
+}
+
+export async function calibrateWallet(walletName: string, targetBalance: number) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  // Fetch all transactions for this specific wallet
+  const { data: transactions, error: fetchErr } = await supabase
+    .from('transactions')
+    .select('amount, type')
+    .eq('user_id', user.id)
+    .eq('wallet_name', walletName)
+
+  if (fetchErr) throw new Error(fetchErr.message)
+
+  // Calculate current balance
+  let currentBalance = 0
+  transactions?.forEach(tx => {
+    const amt = Number(tx.amount)
+    if (tx.type === 'income') {
+      currentBalance += amt
+    } else {
+      currentBalance -= amt
+    }
+  })
+
+  const difference = targetBalance - currentBalance
+
+  if (difference === 0) return // Already calibrated
+
+  const type = difference > 0 ? 'income' : 'expense'
+  const amount = Math.abs(difference)
+  const wallet_type = walletName === 'Cash' ? 'Cash' : 'Cashless'
+
+  const { error: insertErr } = await supabase
+    .from('transactions')
+    .insert({
+      amount,
+      type,
+      description: 'SYSTEM_CALIBRATION',
+      wallet_type,
+      wallet_name: walletName,
+      category: 'Lainnya',
+      user_id: user.id
+    })
+
+  if (insertErr) throw new Error(insertErr.message)
+
+  revalidatePath('/finance')
+  revalidatePath('/')
 }
 
 

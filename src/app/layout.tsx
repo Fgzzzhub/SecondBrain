@@ -2,11 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { LogOut, Brain } from "lucide-react";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { AuthUI } from "./components/AuthUI";
 import { signOut } from "./actions";
-import { Pomodoro } from "./components/Pomodoro";
 import { BottomNav } from "./components/BottomNav";
 import { MobileHeader } from "./components/MobileHeader";
 import { ThemeProvider } from "./components/ThemeProvider";
@@ -109,8 +107,6 @@ export default async function RootLayout({
             </div>
           </div>
 
-          {/* Global Floating Pomodoro Widget */}
-          <Pomodoro />
           {/* Omni Search Command Palette */}
           <OmniSearch />
           </SettingsProvider>

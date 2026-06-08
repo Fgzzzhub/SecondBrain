@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { AddTaskForm } from './AddTaskForm'
 import { TaskList } from './TaskList'
+import { TasksPomodoro } from './TasksPomodoro'
 
 export const revalidate = 0
 
@@ -10,6 +11,7 @@ export default async function TasksPage() {
     .from('tasks')
     .select('*')
     .order('created_at', { ascending: false })
+    .limit(50)
 
   return (
     <div className="flex flex-col h-full gap-8 max-w-2xl mx-auto">
@@ -22,6 +24,7 @@ export default async function TasksPage() {
             Capture, clarify, and execute your actions items.
           </p>
         </div>
+        <TasksPomodoro />
       </header>
 
       {/* Task Creation Form */}

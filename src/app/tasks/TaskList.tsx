@@ -77,7 +77,7 @@ export function TaskList({ tasks = [] }: { tasks: Task[] }) {
             {displayedTasks.map(task => (
               <motion.div
                 key={task.id}
-                layout
+                layout="position"
                 variants={{
                   hidden: { opacity: 0, y: 15 },
                   visible: { opacity: 1, y: 0 }
