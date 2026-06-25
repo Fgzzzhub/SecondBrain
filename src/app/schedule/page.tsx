@@ -6,9 +6,14 @@ const DAYS_ORDER = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Sat
 
 export default async function SchedulePage() {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return null
+
   const { data: schedule } = await supabase
     .from('schedule')
     .select('*')
+    .eq('user_id', user.id)
 
   // Group items by day
   const groupedSchedule = (schedule || []).reduce((acc: any, item: any) => {

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, CheckSquare, Calendar, StickyNote, Sparkles, MessageSquare, DollarSign, Package, Settings, BookOpen, Cigarette, LineChart } from 'lucide-react'
+import { LayoutDashboard, CheckSquare, Calendar, StickyNote, Sparkles, MessageSquare, DollarSign, Package, Settings, BookOpen, Cigarette, LineChart, Compass, CreditCard, Cpu } from 'lucide-react'
 
 // All icons mapped
 export const iconMap = {
@@ -17,7 +17,10 @@ export const iconMap = {
   Settings: Settings,
   Manual: BookOpen,
   Cigarettes: Cigarette,
-  Analytics: LineChart
+  Analytics: LineChart,
+  Trips: Compass,
+  Subscriptions: CreditCard,
+  AutoPilot: Cpu
 }
 
 export const navGroups = [
@@ -40,7 +43,10 @@ export const navGroups = [
     title: "LOGISTICS",
     items: [
       { label: "Finance", href: "/finance", icon: "Finance" },
+      { label: "Auto-Pilot", href: "/finance/auto", icon: "AutoPilot" },
       { label: "Cigarettes", href: "/cigarettes", icon: "Cigarettes" },
+      { label: "Trips", href: "/trips", icon: "Trips" },
+      { label: "Subscriptions", href: "/subscriptions", icon: "Subscriptions" },
       { label: "Analytics", href: "/analytics", icon: "Analytics" },
       { label: "Inventory", href: "/inventory", icon: "Inventory" },
     ]
@@ -72,7 +78,7 @@ export function SidebarLinks({ onLinkClick, showOnlyDrawerItems = false }: Sideb
   const { isModuleEnabled, isHydrated } = useSettings()
 
   // Primary tabs (displayed directly in the bottom nav)
-  const primaryHrefs = ["/", "/finance", "/cigarettes", "/tasks"]
+  const primaryHrefs = ["/", "/finance", "/cigarettes", "/trips"]
 
   const isEnabled = (href: string) => {
     if (href === '/schedule') return isModuleEnabled('schedule')

@@ -30,6 +30,8 @@ export async function createTask(formData: FormData) {
 
 export async function toggleTaskCompletion(taskId: string, is_completed: boolean) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
   
   const updateData = {
     is_completed,
@@ -40,6 +42,7 @@ export async function toggleTaskCompletion(taskId: string, is_completed: boolean
     .from('tasks')
     .update(updateData)
     .eq('id', taskId)
+    .eq('user_id', user.id)
 
   if (error) throw new Error(error.message)
   revalidatePath('/tasks')
@@ -48,11 +51,14 @@ export async function toggleTaskCompletion(taskId: string, is_completed: boolean
 
 export async function deleteTask(taskId: string) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
 
   const { error } = await supabase
     .from('tasks')
     .delete()
     .eq('id', taskId)
+    .eq('user_id', user.id)
 
   if (error) throw new Error(error.message)
   revalidatePath('/tasks')
@@ -61,6 +67,8 @@ export async function deleteTask(taskId: string) {
 
 export async function updateTask(taskId: string, title: string, description: string | null, due_date: string | null) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
 
   const { error } = await supabase
     .from('tasks')
@@ -70,6 +78,7 @@ export async function updateTask(taskId: string, title: string, description: str
       due_date: due_date ? new Date(due_date).toISOString() : null,
     })
     .eq('id', taskId)
+    .eq('user_id', user.id)
 
   if (error) throw new Error(error.message)
   revalidatePath('/tasks')
@@ -102,11 +111,14 @@ export async function createNote(formData: FormData) {
 
 export async function deleteNote(noteId: string) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
 
   const { error } = await supabase
     .from('notes')
     .delete()
     .eq('id', noteId)
+    .eq('user_id', user.id)
 
   if (error) throw new Error(error.message)
   revalidatePath('/notes')
@@ -115,11 +127,14 @@ export async function deleteNote(noteId: string) {
 
 export async function updateNote(noteId: string, title: string, content: string) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
 
   const { error } = await supabase
     .from('notes')
     .update({ title, content })
     .eq('id', noteId)
+    .eq('user_id', user.id)
 
   if (error) throw new Error(error.message)
   revalidatePath('/notes')
@@ -156,11 +171,14 @@ export async function createScheduleItem(formData: FormData) {
 
 export async function deleteScheduleItem(itemId: string) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
 
   const { error } = await supabase
     .from('schedule')
     .delete()
     .eq('id', itemId)
+    .eq('user_id', user.id)
 
   if (error) throw new Error(error.message)
   revalidatePath('/schedule')
@@ -471,6 +489,51 @@ export async function shareCigarette(packId: string) {
   }
 }
 
+export async function calibrateCigarettePack(packId: string, remainingSticks: number) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  try {
+    const { error } = await supabase
+      .from('cigarette_packs')
+      .update({
+        remaining_sticks: remainingSticks,
+        is_active: remainingSticks > 0
+      })
+      .eq('id', packId)
+      .eq('user_id', user.id)
+
+    if (error) throw new Error(error.message)
+    revalidatePath('/')
+  } catch (err) {
+    console.error('Error in calibrateCigarettePack:', err)
+    const message = err instanceof Error ? err.message : 'Failed to calibrate pack'
+    throw new Error(message)
+  }
+}
+
+export async function deleteCigarettePack(packId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  try {
+    const { error } = await supabase
+      .from('cigarette_packs')
+      .delete()
+      .eq('id', packId)
+      .eq('user_id', user.id)
+
+    if (error) throw new Error(error.message)
+    revalidatePath('/')
+  } catch (err) {
+    console.error('Error in deleteCigarettePack:', err)
+    const message = err instanceof Error ? err.message : 'Failed to delete pack'
+    throw new Error(message)
+  }
+}
+
 export async function getCigaretteLogs() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -548,11 +611,14 @@ export async function deleteCigaretteLog(logId: string, packId: string) {
 
 export async function deleteTransaction(id: string) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
 
   const { error } = await supabase
     .from('transactions')
     .delete()
     .eq('id', id)
+    .eq('user_id', user.id)
 
   if (error) throw new Error(error.message)
   revalidatePath('/finance')
@@ -589,11 +655,14 @@ export async function createInventoryItem(formData: FormData) {
 
 export async function updateInventoryItemStatus(itemId: string, status: string) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
 
   const { error } = await supabase
     .from('inventories')
     .update({ status })
     .eq('id', itemId)
+    .eq('user_id', user.id)
 
   if (error) throw new Error(error.message)
   revalidatePath('/inventory')
@@ -602,6 +671,8 @@ export async function updateInventoryItemStatus(itemId: string, status: string) 
 
 export async function updateInventoryItem(itemId: string, item_name: string, quantity: number, location: string | null, status: string) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
 
   const { error } = await supabase
     .from('inventories')
@@ -612,6 +683,7 @@ export async function updateInventoryItem(itemId: string, item_name: string, qua
       status
     })
     .eq('id', itemId)
+    .eq('user_id', user.id)
 
   if (error) throw new Error(error.message)
   revalidatePath('/inventory')
@@ -620,11 +692,14 @@ export async function updateInventoryItem(itemId: string, item_name: string, qua
 
 export async function deleteInventoryItem(itemId: string) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
 
   const { error } = await supabase
     .from('inventories')
     .delete()
     .eq('id', itemId)
+    .eq('user_id', user.id)
 
   if (error) throw new Error(error.message)
   revalidatePath('/inventory')
@@ -887,9 +962,222 @@ export async function calibrateWallet(walletName: string, targetBalance: number)
   })
 
   if (insertErr) throw new Error(insertErr.message)
-
+ 
   revalidatePath('/finance')
   revalidatePath('/')
 }
+
+// Trip Template & Checklist Actions
+export async function createTripTemplate(title: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const { error } = await supabase
+    .from('trip_templates')
+    .insert({
+      title,
+      user_id: user.id
+    })
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/trips')
+}
+
+export async function deleteTripTemplate(templateId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const { error } = await supabase
+    .from('trip_templates')
+    .delete()
+    .eq('id', templateId)
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/trips')
+}
+
+export async function addTemplateItem(templateId: string, name: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const { error } = await supabase
+    .from('template_items')
+    .insert({
+      template_id: templateId,
+      name,
+      is_checked: false
+    })
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/trips')
+}
+
+export async function toggleTemplateItem(itemId: string, isChecked: boolean) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const { error } = await supabase
+    .from('template_items')
+    .update({ is_checked: isChecked })
+    .eq('id', itemId)
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/trips')
+}
+
+export async function deleteTemplateItem(itemId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const { error } = await supabase
+    .from('template_items')
+    .delete()
+    .eq('id', itemId)
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/trips')
+}
+
+export async function resetTemplateItems(templateId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const { error } = await supabase
+    .from('template_items')
+    .update({ is_checked: false })
+    .eq('template_id', templateId)
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/trips')
+}
+
+// Subscription & Digital Guard Actions
+export async function createSubscription(name: string, amount: number, billingDay: number, walletName: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const { error } = await supabase
+    .from('subscriptions')
+    .insert({
+      name,
+      amount,
+      billing_day: billingDay,
+      wallet_name: walletName
+    })
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/subscriptions')
+  revalidatePath('/')
+}
+
+export async function deleteSubscription(subId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const { error } = await supabase
+    .from('subscriptions')
+    .delete()
+    .eq('id', subId)
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/subscriptions')
+  revalidatePath('/')
+}
+
+export async function paySubscription(subId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const { data: sub, error: fetchErr } = await supabase
+    .from('subscriptions')
+    .select('*')
+    .eq('id', subId)
+    .single()
+
+  if (fetchErr || !sub) throw new Error("Subscription not found")
+
+  const { error: insertErr } = await insertTransactionWithFallback(supabase, {
+    amount: sub.amount,
+    type: 'expense',
+    description: `Pembayaran Rutin ${sub.name}`,
+    wallet_type: sub.wallet_name === 'Cash' ? 'Cash' : 'Cashless',
+    wallet_name: sub.wallet_name,
+    category: 'Internet / Digital',
+    user_id: user.id
+  })
+
+  if (insertErr) throw new Error(insertErr.message)
+
+  revalidatePath('/finance')
+  revalidatePath('/subscriptions')
+  revalidatePath('/')
+}
+
+// Auto-Pilot Finance Actions
+export async function createAutoTransaction(
+  title: string,
+  type: 'income' | 'expense',
+  amount: number,
+  category: string,
+  walletName: string,
+  frequency: 'daily' | 'monthly',
+  billingDay: number | null
+) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  // Set the initial processed date to today's date in local time YYYY-MM-DD
+  const todayLocal = new Date()
+  const year = todayLocal.getFullYear()
+  const month = String(todayLocal.getMonth() + 1).padStart(2, '0')
+  const date = String(todayLocal.getDate()).padStart(2, '0')
+  const lastProcessedStr = `${year}-${month}-${date}`
+
+  const { error } = await supabase
+    .from('auto_transactions')
+    .insert({
+      title,
+      type,
+      amount,
+      category,
+      wallet_name: walletName,
+      frequency,
+      billing_day: frequency === 'monthly' ? billingDay : null,
+      last_processed_at: lastProcessedStr
+    })
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/finance/auto')
+  revalidatePath('/finance')
+  revalidatePath('/')
+}
+
+export async function deleteAutoTransaction(id: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const { error } = await supabase
+    .from('auto_transactions')
+    .delete()
+    .eq('id', id)
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/finance/auto')
+  revalidatePath('/finance')
+  revalidatePath('/')
+}
+
+
 
 

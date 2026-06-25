@@ -6,6 +6,7 @@ import { RabbitHoleWidget } from './components/RabbitHoleWidget'
 import { FinanceOverview } from './components/FinanceOverview'
 import { getWalletBalances } from '@/app/actions'
 import { DailyBriefing } from './components/DailyBriefing'
+import { SubscriptionAlerts } from './components/SubscriptionAlerts'
 
 const quotes = [
   "Simplicity is the ultimate sophistication.",
@@ -37,15 +38,17 @@ export default async function DashboardPage() {
     walletBalances,
     { count: tasksCompletedToday },
     { data: todayExpensesData },
-    { count: cigarettesToday }
+    { count: cigarettesToday },
+    { data: subscriptions }
   ] = await Promise.all([
     supabase.from('tasks').select('*', { count: 'exact', head: true }).eq('is_completed', false).eq('user_id', user.id),
-    supabase.from('schedule').select('*'),
-    supabase.from('notes').select('*').order('created_at', { ascending: false }).limit(3),
+    supabase.from('schedule').select('*').eq('user_id', user.id),
+    supabase.from('notes').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(3),
     getWalletBalances(),
     supabase.from('tasks').select('*', { count: 'exact', head: true }).eq('is_completed', true).eq('user_id', user.id).gte('completed_at', startOfTodayStr).lte('completed_at', endOfTodayStr),
-    supabase.from('transactions').select('amount').eq('user_id', user.id).eq('type', 'expense').gte('created_at', startOfTodayStr).lte('created_at', endOfTodayStr),
-    supabase.from('cigarette_logs').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('smoked_at', startOfTodayStr).lte('smoked_at', endOfTodayStr)
+    supabase.from('transactions').select('amount').eq('user_id', user.id).eq('type', 'expense').neq('description', 'SYSTEM_CALIBRATION').gte('created_at', startOfTodayStr).lte('created_at', endOfTodayStr),
+    supabase.from('cigarette_logs').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('smoked_at', startOfTodayStr).lte('smoked_at', endOfTodayStr),
+    supabase.from('subscriptions').select('*')
   ])
 
   const todayName = format(new Date(), 'EEEE') // e.g. "Monday"
@@ -78,6 +81,9 @@ export default async function DashboardPage() {
         todayExpenses={todayExpensesSum}
         cigarettesSmoked={cigarettesToday || 0}
       />
+
+      {/* Subscription Due Alerts */}
+      <SubscriptionAlerts initialSubscriptions={subscriptions || []} />
 
       {/* Top Interactive Trackers */}
       <div className="grid grid-cols-1 gap-6">

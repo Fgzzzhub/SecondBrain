@@ -12,6 +12,7 @@ import NextTopLoader from "nextjs-toploader";
 import { SidebarLinks } from "./components/SidebarLinks";
 import { SettingsProvider } from "./components/SettingsContext";
 import { OmniSearch } from "./components/OmniSearch";
+import { AutoFinanceSync } from "./components/AutoFinanceSync";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -109,6 +110,9 @@ export default async function RootLayout({
 
           {/* Omni Search Command Palette */}
           <OmniSearch />
+
+          {/* Silent Catch-up Auto-Pilot Sync */}
+          <AutoFinanceSync />
           </SettingsProvider>
         </ThemeProvider>
       </body>

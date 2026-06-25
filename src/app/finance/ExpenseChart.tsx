@@ -32,6 +32,7 @@ export function ExpenseChart({ transactions, selectedMonthStr }: ExpenseChartPro
   // Filter selected month expenses
   const monthlyExpenses = transactions.filter((tx) => {
     if (tx.type !== 'expense') return false
+    if (tx.description === 'SYSTEM_CALIBRATION') return false
     try {
       return tx.created_at.substring(0, 7) === selectedMonthStr
     } catch {

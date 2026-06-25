@@ -16,9 +16,14 @@ interface LearningLog {
 
 export default async function TimelinePage() {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return null
+
   const { data: logs, error } = await supabase
     .from('learning_logs')
     .select('*')
+    .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
   return (

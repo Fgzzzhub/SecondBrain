@@ -5,11 +5,15 @@ import { Package, CheckCircle, AlertTriangle } from 'lucide-react'
 
 export default async function InventoryPage() {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return null
 
   // Fetch inventories joined with courses
   const { data: inventories } = await supabase
     .from('inventories')
     .select('*, courses(name)')
+    .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
   // Fetch courses for the creation dropdown
