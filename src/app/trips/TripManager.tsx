@@ -229,8 +229,8 @@ export function TripManager({ initialTemplates }: TripManagerProps) {
                   transition={{ type: 'spring', stiffness: 350, damping: 28 }}
                   className="p-5 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/40 dark:bg-neutral-900/10 hover:border-[rgb(var(--color-primary))]/20 dark:hover:border-[rgb(var(--color-primary))]/10 flex flex-col justify-between gap-5 relative group overflow-hidden transition-all duration-300 min-h-[320px] shadow-sm"
                 >
-                  {/* Soft gradient glow on hover */}
-                  <div className="absolute inset-0 bg-gradient-to-tr from-[rgba(var(--color-primary),0.04)] to-transparent dark:from-[rgba(var(--color-primary),0.02)] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                  {/* Subtle neutral hover wash (no colored glow) */}
+                  <div className="absolute inset-0 bg-neutral-500/5 dark:bg-white/[0.02] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
                   <div className="flex flex-col gap-4 z-10">
                     {/* Header */}

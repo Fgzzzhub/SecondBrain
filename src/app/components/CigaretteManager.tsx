@@ -318,8 +318,8 @@ export function CigaretteManager({ initialActivePacks, initialTodayLogs }: Cigar
 
   return (
     <div className="bg-white dark:bg-neutral-900/30 border border-neutral-200 dark:border-neutral-800/80 rounded-2xl p-5 md:p-6 transition-all shadow-sm flex flex-col gap-6 relative overflow-hidden group">
-      {/* Soft gradient glow on hover */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-[rgba(var(--color-primary),0.04)] to-transparent dark:from-[rgba(var(--color-primary),0.02)] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+      {/* Subtle neutral hover wash (no colored glow) */}
+      <div className="absolute inset-0 bg-neutral-500/5 dark:bg-white/[0.02] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
       {/* Header */}
       <div className="flex items-center justify-between z-10">
@@ -615,7 +615,7 @@ export function CigaretteManager({ initialActivePacks, initialTodayLogs }: Cigar
                       {/* Progress Bar */}
                       <div className="w-full bg-neutral-100 dark:bg-neutral-950 h-1.5 rounded-full mt-2.5 overflow-hidden">
                         <div
-                          className="bg-gradient-to-r from-[rgb(var(--color-primary))] to-[rgb(var(--color-primary))]/80 h-full transition-all duration-300"
+                          className="bg-[rgb(var(--color-primary))] h-full transition-all duration-300"
                           style={{ width: `${(pack.remaining_sticks / pack.initial_sticks) * 100}%` }}
                         />
                       </div>

@@ -3,29 +3,81 @@
 @variant dark (&:is(.dark, .dark *));
 
 :root {
+  /* Light mode keeps prior values for backward-compat */
   --background: #ffffff;
   --foreground: #0a0a0a;
   --loader-color: #0a0a0a;
   --font-sans: var(--font-inter), Arial, Helvetica, sans-serif;
-  --color-primary: 99, 102, 241;
+  /* Vivid cobalt-indigo — characterful, not the generic #6366F1 default. */
+  --color-primary: 91, 108, 255;
+  /* Secondary accent for tasteful gradients/highlights (cyan, not violet). */
+  --color-accent-2: 34, 211, 238;
+
+  /* Surface design tokens (used in both themes; values below tweaked per theme) */
+  --bg-base: #ffffff;
+  --bg-surface: #f7f8fb;
+  --bg-surface-hover: #eef0f6;
+  --border: rgba(15, 23, 42, 0.10);
+  --border-strong: rgba(15, 23, 42, 0.16);
+  --accent: rgb(var(--color-primary));
+  --accent-soft: rgba(var(--color-primary), 0.12);
+  --accent-secondary: rgb(var(--color-accent-2));
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --glass-blur: blur(10px);
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+
+  /* Neutral elevation — gives cards depth in light mode. */
+  --elevation-top: inset 0 1px 0 0 rgba(255, 255, 255, 0.6);
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.05);
+  --shadow-card-hover: 0 2px 4px rgba(15, 23, 42, 0.07), 0 8px 22px rgba(15, 23, 42, 0.08);
+  /* Accent glow — used sparingly on primary CTAs to add life (light). */
+  --glow-accent: 0 4px 14px rgba(var(--color-primary), 0.30);
+  --glow-accent-strong: 0 6px 22px rgba(var(--color-primary), 0.42);
+  /* Skeleton shimmer sweep highlight. */
+  --skeleton-sheen: rgba(15, 23, 42, 0.06);
 }
 
 .dark {
-  --background: #050505;
-  --foreground: #ededed;
+  --background: #0B0E14;
+  --foreground: #F1F5F9;
   --loader-color: #ededed;
+
+  /* Deep indigo-tinted base + clearly-elevated surfaces with real contrast. */
+  --bg-base: #0B0E14;
+  --bg-surface: #161B26;
+  --bg-surface-hover: #1F2533;
+  --border: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --text-primary: #F2F5FA;
+  --text-secondary: #A6B0BF;
+  --text-muted: #707A89;
+
+  /* Depth = top highlight + soft drop shadow; cards sit visibly above the base. */
+  --elevation-top: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 18px rgba(0, 0, 0, 0.32);
+  --shadow-card-hover: 0 2px 6px rgba(0, 0, 0, 0.45), 0 14px 32px rgba(0, 0, 0, 0.4);
+  /* Accent glow reads stronger on dark — used only on key CTAs. */
+  --glow-accent: 0 4px 18px rgba(var(--color-primary), 0.40);
+  --glow-accent-strong: 0 6px 28px rgba(var(--color-primary), 0.55);
+  --skeleton-sheen: rgba(255, 255, 255, 0.07);
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: var(--bg-base);
+  color: var(--text-primary);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Hide scrollbar for a cleaner feel */
   scrollbar-width: none;
   -ms-overflow-style: none;
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-property: color, background-color, border-color;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 200ms;
 }
@@ -34,39 +86,182 @@ body::-webkit-scrollbar {
   display: none;
 }
 
-/* Custom minimal utility for styling selections and focus rings */
 ::selection {
-  background-color: #e5e5e5;
-  color: #0a0a0a;
-}
-
-.dark ::selection {
-  background-color: #262626;
-  color: #ffffff;
+  background-color: rgba(var(--color-primary), 0.35);
+  color: #fff;
 }
 
 *:focus-visible {
-  outline: 2px solid #525252;
+  outline: 2px solid rgba(var(--color-primary), 0.6);
   outline-offset: 2px;
+  border-radius: 6px;
 }
+
+/* Form elements handle their own focus via border/ring — suppress the global outline */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+}
+
+/* Ambient layer intentionally inert — the glowing blobs were removed for a
+   flat, calm backdrop. Kept as an empty element so existing markup hooks stay
+   valid (the body already paints --bg-base). */
+.ambient-bg {
+  display: none;
+}
+
+/* === Surface utility classes ===
+   Solid, opaque cards with a crisp 1px border, a hairline top highlight and a
+   soft neutral drop shadow for depth — no translucency/neon glow.
+   Names kept (`glass*`) for backward compatibility with existing markup. */
+.glass {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--elevation-top), var(--shadow-card);
+}
+
+.glass-strong {
+  background-color: var(--bg-surface-hover);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--elevation-top), var(--shadow-card);
+}
+
+/* ============================================================
+ * Motion library — tasteful, characterful, reduced-motion safe.
+ * ============================================================ */
+
+/* Staggered entrance: fade + rise + subtle scale. Apply `.stagger` to a
+   container; children animate in sequence. Or use `.animate-rise` directly. */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-rise {
+  animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.stagger > * {
+  animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.stagger > *:nth-child(1) { animation-delay: 0.03s; }
+.stagger > *:nth-child(2) { animation-delay: 0.08s; }
+.stagger > *:nth-child(3) { animation-delay: 0.13s; }
+.stagger > *:nth-child(4) { animation-delay: 0.18s; }
+.stagger > *:nth-child(5) { animation-delay: 0.23s; }
+.stagger > *:nth-child(6) { animation-delay: 0.28s; }
+.stagger > *:nth-child(7) { animation-delay: 0.33s; }
+.stagger > *:nth-child(8) { animation-delay: 0.38s; }
+.stagger > *:nth-child(n+9) { animation-delay: 0.42s; }
+
+/* Tasteful accent gradient text (indigo → cyan) with a slow drifting shimmer.
+   For hero numbers / signature headings — intentional, not generic. */
+.text-gradient-accent {
+  background: linear-gradient(
+    110deg,
+    rgb(var(--color-primary)) 0%,
+    rgb(var(--color-accent-2)) 55%,
+    rgb(var(--color-primary)) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: shimmer 6s linear infinite;
+}
+@keyframes shimmer {
+  to { background-position: 200% center; }
+}
+
+/* Soft accent glow that breathes — for the FAB / primary call-to-action. */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: var(--glow-accent); }
+  50%      { box-shadow: var(--glow-accent-strong); }
+}
+.animate-glow-pulse { animation: glow-pulse 3.5s ease-in-out infinite; }
+
+/* Utility: apply the accent glow statically. */
+.shadow-glow { box-shadow: var(--glow-accent); }
+.shadow-glow-strong { box-shadow: var(--glow-accent-strong); }
+
+/* Skeleton shimmer — a light sweep travels across placeholder blocks. */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--bg-surface);
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, var(--skeleton-sheen), transparent);
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+@keyframes skeleton-shimmer {
+  100% { transform: translateX(100%); }
+}
+
+/* Page transition: each route mounts with a soft Apple-style settle.
+   `backwards` fill applies the start frame before paint (no flash) but the
+   element reverts to clean styles afterwards — so no lingering transform/filter
+   that would trap `position: fixed`/`sticky` descendants. */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(10px) scale(0.992); filter: blur(6px); }
+  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+.animate-page-enter {
+  animation: page-enter 0.42s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-page-enter { animation: none; }
+}
+
+/* Honor user motion preferences — disable decorative motion. */
+@media (prefers-reduced-motion: reduce) {
+  .animate-rise,
+  .stagger > *,
+  .text-gradient-accent,
+  .animate-glow-pulse,
+  .skeleton::after {
+    animation: none !important;
+  }
+  .animate-rise,
+  .stagger > * { opacity: 1; transform: none; }
+}
+
+/* Animated typing dots for AI chat */
+@keyframes typing-pulse {
+  0%, 80%, 100% { opacity: 0.25; transform: scale(0.85); }
+  40% { opacity: 1; transform: scale(1); }
+}
+.typing-dot {
+  animation: typing-pulse 1.2s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+/* FAB micro-bounce on confirmation */
+@keyframes fab-confirm {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+.fab-confirm { animation: fab-confirm 0.45s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
 /* PWA Standalone Mode Fixes */
 @media (display-mode: standalone) {
-  /* Force momentum scrolling */
   body, html {
     -webkit-overflow-scrolling: touch !important;
   }
-  
-  /* Force inputs to be tappable and selectable */
+
   input, textarea, [contenteditable] {
     -webkit-user-select: text !important;
     user-select: text !important;
     -webkit-touch-callout: default !important;
-    /* Prevent tap delays or gesture hijacking */
-    touch-action: manipulation !important; 
+    touch-action: manipulation !important;
   }
 
-  /* Ensure Bottom Nav safe-area doesn't create an invisible giant block */
   .bottom-nav-container {
     padding-bottom: env(safe-area-inset-bottom) !important;
     pointer-events: auto !important;
@@ -75,19 +270,15 @@ body::-webkit-scrollbar {
 
 /* iOS WebKit Specific Fixes */
 @supports (-webkit-touch-callout: none) {
-  /* Isolate the body from blocking touch events */
   body {
     -webkit-user-select: none;
   }
-  
-  /* FORCE iOS to recognize these as interactive text fields */
+
   input, textarea, select, [contenteditable] {
     -webkit-user-select: auto !important;
     user-select: auto !important;
     -webkit-touch-callout: default !important;
-    /* Prevent iOS 15+ focus hijacking */
-    -webkit-appearance: none; 
-    /* Crucial for iPhone 15 Pro dynamic island/safe area bug */
+    -webkit-appearance: none;
     position: relative;
     z-index: 9999;
   }

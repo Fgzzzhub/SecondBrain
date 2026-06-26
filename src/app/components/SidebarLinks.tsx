@@ -105,7 +105,7 @@ export function SidebarLinks({ onLinkClick, showOnlyDrawerItems = false }: Sideb
 
         return (
           <div key={group.title} className="flex flex-col">
-            <span className="text-[10px] font-semibold text-neutral-450 dark:text-neutral-500 tracking-wider mb-2 px-3">
+            <span className="text-[10px] font-semibold text-[var(--text-muted)] tracking-wider mb-2 px-3">
               {group.title}
             </span>
             <nav className="flex flex-col gap-1">
@@ -118,12 +118,18 @@ export function SidebarLinks({ onLinkClick, showOnlyDrawerItems = false }: Sideb
                     key={item.href}
                     href={item.href}
                     onClick={onLinkClick}
-                    className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all border-l-2 ${
+                    className={`relative flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-all ${
                       isActive
-                        ? 'bg-[rgba(var(--color-primary),0.1)] text-[rgb(var(--color-primary))] border-[rgb(var(--color-primary))]'
-                        : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 hover:bg-neutral-200/50 dark:hover:bg-neutral-900/50 border-transparent'
+                        ? 'bg-[rgba(var(--color-primary),0.10)] text-[rgb(var(--color-primary))]'
+                        : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface-hover)]'
                     }`}
                   >
+                    {isActive && (
+                      <span
+                        aria-hidden="true"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-[rgb(var(--color-primary))]"
+                      />
+                    )}
                     <Icon className={`w-4 h-4 stroke-[1.5px] ${isActive ? 'text-[rgb(var(--color-primary))]' : ''}`} />
                     <span>{item.label}</span>
                   </Link>

@@ -1,14 +1,26 @@
-import withPWAInit from "@ducanh2912/next-pwa";
-
-const withPWA = withPWAInit({
-  dest: "public",
-  disable: process.env.NODE_ENV === "development",
-});
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactCompiler: true,
   turbopack: {},
+  async headers() {
+    return [
+      {
+        // Always serve the freshest service worker (no caching) and the
+        // correct JS content type. Mirrors the Next.js PWA guide.
+        source: "/sw.js",
+        headers: [
+          {
+            key: "Content-Type",
+            value: "application/javascript; charset=utf-8",
+          },
+          {
+            key: "Cache-Control",
+            value: "no-cache, no-store, must-revalidate",
+          },
+        ],
+      },
+    ];
+  },
   async redirects() {
     return [
       {
@@ -25,4 +37,4 @@ const nextConfig = {
   },
 };
 
-export default withPWA(nextConfig);
+export default nextConfig;

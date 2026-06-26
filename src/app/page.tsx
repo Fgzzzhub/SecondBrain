@@ -1,12 +1,14 @@
 import { createClient } from '@/lib/supabase/server'
 import { format } from 'date-fns'
 import Link from 'next/link'
-import { CheckSquare, Calendar, StickyNote, ArrowUpRight } from 'lucide-react'
+import { Cigarette, DollarSign, StickyNote, ArrowUpRight, Sparkles } from 'lucide-react'
 import { RabbitHoleWidget } from './components/RabbitHoleWidget'
 import { FinanceOverview } from './components/FinanceOverview'
 import { getWalletBalances } from '@/app/actions'
 import { DailyBriefing } from './components/DailyBriefing'
 import { SubscriptionAlerts } from './components/SubscriptionAlerts'
+import { GlassCard } from './components/ui/GlassCard'
+import { StatCard } from './components/ui/StatCard'
 
 const quotes = [
   "Simplicity is the ultimate sophistication.",
@@ -21,7 +23,6 @@ export default async function DashboardPage() {
 
   if (!user) return null
 
-  // Calculate local bounds of today
   const startOfToday = new Date()
   startOfToday.setHours(0, 0, 0, 0)
   const startOfTodayStr = startOfToday.toISOString()
@@ -30,7 +31,6 @@ export default async function DashboardPage() {
   endOfToday.setHours(23, 59, 59, 999)
   const endOfTodayStr = endOfToday.toISOString()
 
-  // Fetch statistics & tracker data in parallel
   const [
     { count: pendingTasks },
     { data: schedule },
@@ -51,9 +51,9 @@ export default async function DashboardPage() {
     supabase.from('subscriptions').select('*')
   ])
 
-  const todayName = format(new Date(), 'EEEE') // e.g. "Monday"
+  const todayName = format(new Date(), 'EEEE')
   const todayClasses = schedule?.filter(s => s.day === todayName) || []
-  
+
   const dayIndex = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].indexOf(todayName)
   const quoteIndex = dayIndex >= 0 ? dayIndex % quotes.length : 0
   const randomQuote = quotes[quoteIndex]
@@ -61,17 +61,18 @@ export default async function DashboardPage() {
   const todayExpensesSum = (todayExpensesData || []).reduce((sum, tx) => sum + Number(tx.amount), 0)
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className="stagger flex flex-col gap-8 md:gap-10">
       {/* Header */}
       <header className="flex flex-col gap-2.5">
-        <p className="text-xs text-neutral-500 font-medium tracking-wide uppercase">
+        <p className="text-[11px] text-[var(--text-muted)] font-semibold tracking-widest uppercase">
           {format(new Date(), 'EEEE, MMMM d, yyyy')}
         </p>
-        <h1 className="text-2xl font-medium tracking-tight text-neutral-900 dark:text-white sm:text-3xl">
-          Welcome back
+        <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[var(--text-primary)]">
+          Welcome <span className="text-gradient-accent">back</span>
         </h1>
-        <p className="text-sm text-neutral-500 dark:text-neutral-450 italic font-light max-w-md">
-          &ldquo;{randomQuote}&rdquo;
+        <p className="text-sm text-[var(--text-secondary)] italic font-light max-w-md flex items-start gap-2">
+          <Sparkles className="w-3.5 h-3.5 mt-1 text-[rgb(var(--color-primary))] flex-shrink-0" />
+          <span>&ldquo;{randomQuote}&rdquo;</span>
         </p>
       </header>
 
@@ -85,89 +86,88 @@ export default async function DashboardPage() {
       {/* Subscription Due Alerts */}
       <SubscriptionAlerts initialSubscriptions={subscriptions || []} />
 
-      {/* Top Interactive Trackers */}
+      {/* Wallet Overview */}
       <div className="grid grid-cols-1 gap-6">
         <FinanceOverview balances={walletBalances} />
       </div>
 
-      {/* Grid Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Link href="/tasks" className="p-5 rounded-2xl border border-neutral-200 dark:border-neutral-900 bg-neutral-55/50 dark:bg-neutral-900/10 hover:bg-neutral-100/50 dark:hover:bg-neutral-900/25 transition-colors group">
-          <div className="flex justify-between items-start mb-4">
-            <CheckSquare className="w-4 h-4 text-neutral-400 dark:text-neutral-500 stroke-[1.5px]" />
-            <ArrowUpRight className="w-3.5 h-3.5 text-neutral-405 group-hover:text-neutral-900 dark:group-hover:text-neutral-300 transition-colors" />
-          </div>
-          <p className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white">{pendingTasks || 0}</p>
-          <p className="text-xs text-neutral-500 mt-1">Pending tasks</p>
-        </Link>
-
-        <Link href="/schedule" className="p-5 rounded-2xl border border-neutral-200 dark:border-neutral-900 bg-neutral-55/50 dark:bg-neutral-900/10 hover:bg-neutral-100/50 dark:hover:bg-neutral-900/25 transition-colors group">
-          <div className="flex justify-between items-start mb-4">
-            <Calendar className="w-4 h-4 text-neutral-400 dark:text-neutral-500 stroke-[1.5px]" />
-            <ArrowUpRight className="w-3.5 h-3.5 text-neutral-405 group-hover:text-neutral-900 dark:group-hover:text-neutral-300 transition-colors" />
-          </div>
-          <p className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white">{todayClasses.length}</p>
-          <p className="text-xs text-neutral-500 mt-1">Classes today</p>
-        </Link>
-
-        <Link href="/notes" className="p-5 rounded-2xl border border-neutral-200 dark:border-neutral-900 bg-neutral-55/50 dark:bg-neutral-900/10 hover:bg-neutral-100/50 dark:hover:bg-neutral-900/25 transition-colors group">
-          <div className="flex justify-between items-start mb-4">
-            <StickyNote className="w-4 h-4 text-neutral-400 dark:text-neutral-500 stroke-[1.5px]" />
-            <ArrowUpRight className="w-3.5 h-3.5 text-neutral-405 group-hover:text-neutral-900 dark:group-hover:text-neutral-300 transition-colors" />
-          </div>
-          <p className="text-2xl font-semibold tracking-tight text-neutral-900 dark:text-white">{notes?.length || 0}</p>
-          <p className="text-xs text-neutral-500 mt-1">Recent notes</p>
-        </Link>
+      {/* Stat grid */}
+      <div className="stagger grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <StatCard
+          label="Cigarettes Today"
+          value={cigarettesToday || 0}
+          icon={<Cigarette className="w-4 h-4 stroke-[1.5px]" />}
+          href="/cigarettes"
+          numberColor="warning"
+        />
+        <StatCard
+          label="Expenses Today"
+          value={`Rp ${todayExpensesSum.toLocaleString('id-ID')}`}
+          icon={<DollarSign className="w-4 h-4 stroke-[1.5px]" />}
+          href="/finance"
+          numberColor="danger"
+        />
+        <StatCard
+          label="Recent Notes"
+          value={notes?.length || 0}
+          icon={<StickyNote className="w-4 h-4 stroke-[1.5px]" />}
+          href="/notes"
+        />
       </div>
 
       {/* Rabbit Hole Curiosity widget */}
       <RabbitHoleWidget />
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Today's Schedule */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-xs font-semibold tracking-wider text-neutral-400 dark:text-neutral-500 uppercase">Today&apos;s Schedule</h2>
+          <h2 className="text-[11px] font-semibold tracking-wider text-[var(--text-muted)] uppercase">Today&apos;s Schedule</h2>
           <div className="flex flex-col gap-3">
             {todayClasses.length > 0 ? (
               todayClasses.map((cls) => (
-                <div key={cls.id} className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-900 bg-neutral-50/50 dark:bg-neutral-900/5 flex items-center justify-between">
+                <GlassCard key={cls.id} padding="md" className="flex items-center justify-between">
                   <div>
-                    <h4 className="text-sm font-medium text-neutral-900 dark:text-white">{cls.subject}</h4>
-                    <p className="text-xs text-neutral-500 mt-1">Room {cls.room}</p>
+                    <h4 className="text-sm font-semibold text-[var(--text-primary)]">{cls.subject}</h4>
+                    <p className="text-xs text-[var(--text-secondary)] mt-1">Room {cls.room}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xs font-medium text-neutral-600 dark:text-neutral-300">
-                      {cls.start_time.slice(0, 5)} - {cls.end_time.slice(0, 5)}
+                    <p className="text-xs font-semibold text-[rgb(var(--color-primary))] tabular-nums">
+                      {cls.start_time.slice(0, 5)} – {cls.end_time.slice(0, 5)}
                     </p>
                   </div>
-                </div>
+                </GlassCard>
               ))
             ) : (
-              <div className="p-5 text-center rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800">
-                <p className="text-xs text-neutral-500">No classes scheduled for today.</p>
-              </div>
+              <GlassCard variant="subtle" padding="md" className="text-center border-dashed">
+                <p className="text-xs text-[var(--text-secondary)]">No classes scheduled for today.</p>
+              </GlassCard>
             )}
           </div>
         </section>
 
         {/* Quick Notes */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-xs font-semibold tracking-wider text-neutral-400 dark:text-neutral-500 uppercase">Recent Notes</h2>
+          <h2 className="text-[11px] font-semibold tracking-wider text-[var(--text-muted)] uppercase">Recent Notes</h2>
           <div className="flex flex-col gap-3">
             {notes && notes.length > 0 ? (
               notes.map((note) => (
-                <div key={note.id} className="p-4 rounded-xl border border-neutral-200 dark:border-neutral-900 bg-neutral-50/50 dark:bg-neutral-900/5">
-                  <h4 className="text-sm font-medium text-neutral-900 dark:text-white truncate">{note.title}</h4>
-                  <p className="text-xs text-neutral-550 dark:text-neutral-400 mt-1.5 line-clamp-2 leading-relaxed">
-                    {note.content}
-                  </p>
-                </div>
+                <Link key={note.id} href="/notes" className="block group">
+                  <GlassCard padding="md" className="group-hover:border-[rgba(var(--color-primary),0.4)]">
+                    <div className="flex items-start justify-between gap-3">
+                      <h4 className="text-sm font-semibold text-[var(--text-primary)] truncate">{note.title}</h4>
+                      <ArrowUpRight className="w-3.5 h-3.5 text-[var(--text-muted)] group-hover:text-[rgb(var(--color-primary))] flex-shrink-0 transition-colors" />
+                    </div>
+                    <p className="text-xs text-[var(--text-secondary)] mt-1.5 line-clamp-2 leading-relaxed">
+                      {note.content}
+                    </p>
+                  </GlassCard>
+                </Link>
               ))
             ) : (
-              <div className="p-5 text-center rounded-xl border border-dashed border-neutral-200 dark:border-neutral-800">
-                <p className="text-xs text-neutral-550 dark:text-neutral-500">No notes created yet.</p>
-              </div>
+              <GlassCard variant="subtle" padding="md" className="text-center border-dashed">
+                <p className="text-xs text-[var(--text-secondary)]">No notes created yet.</p>
+              </GlassCard>
             )}
           </div>
         </section>

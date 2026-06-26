@@ -3,6 +3,21 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
+// Pomodoro Actions
+export async function logPomodoroSession(durationMinutes: number, mode: 'work' | 'break' = 'work') {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return // silent fail — pomodoro shouldn't block UI on auth issues
+
+  await supabase
+    .from('pomodoro_sessions')
+    .insert({
+      user_id: user.id,
+      duration_minutes: durationMinutes,
+      mode,
+    })
+}
+
 // Tasks Actions
 export async function createTask(formData: FormData) {
   const supabase = await createClient()

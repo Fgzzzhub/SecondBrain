@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Brain OS — Personal Life Management PWA
 
-## Getting Started
+Next.js 16 + React 19 + Tailwind v4 + Supabase, hosted on Vercel Hobby.
 
-First, run the development server:
+## Local dev
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Required keys live in `.env.local` (see the file for placeholders). Also add them in
+**Vercel → Settings → Environment Variables** for production.
 
-## Learn More
+| Variable | Used by | How to get it |
+|---|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | All Supabase clients | Supabase dashboard → Settings → API |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | All Supabase clients | Supabase dashboard → Settings → API |
+| `SUPABASE_SERVICE_ROLE_KEY` | `/api/send-briefing` (cron, reads across users) | Supabase dashboard → Settings → API → **service_role secret** (keep server-only) |
+| `GEMINI_API_KEY` | `/api/ai-chat` | https://aistudio.google.com/app/apikey (free tier varies by model & project) |
+| `GEMINI_MODEL` (optional) | `/api/ai-chat` | Model id, defaults to `gemini-2.5-flash`. Override if a model returns a `limit: 0` free-tier quota error. |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Browser push subscribe + server send | Generated below |
+| `VAPID_PRIVATE_KEY` | Server-side `webpush.setVapidDetails` | Generated below |
+| `VAPID_CONTACT_EMAIL` | VAPID identity (mailto link) | Your email, format `mailto:you@example.com` |
+| `CRON_SECRET` (optional) | Verifies `/api/send-briefing` came from Vercel Cron | Any random string; set the same value in Vercel cron config |
 
-To learn more about Next.js, take a look at the following resources:
+### Regenerating VAPID keys
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+node -e "console.log(require('web-push').generateVAPIDKeys())"
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Paste the public key into `NEXT_PUBLIC_VAPID_PUBLIC_KEY` and the private into `VAPID_PRIVATE_KEY`.
+Keys must match between client subscription and server sending; rotating them invalidates
+existing push subscriptions.
 
-## Deploy on Vercel
+## Daily briefing schedule
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+`vercel.json` runs `/api/send-briefing` once a day at `0 0 * * *` (00:00 UTC = **07:00 WIB**).
+On Vercel Hobby you get one daily cron; this uses it.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+To test locally, hit `GET http://localhost:3000/api/send-briefing` (skip `CRON_SECRET` while testing).
+
+## Database migrations
+
+After pulling, apply `supabase/migrations/` to your Supabase project:
+
+```bash
+supabase db push   # or run the SQL in supabase/migrations/ manually via dashboard
+```
+
+New tables added by the AI-chat + push features:
+- `pomodoro_sessions` — one row per completed focus/break session (powers AI context + analytics)
+- `push_subscriptions` — Web Push endpoints per device
+
+## Architecture notes
+
+- **Design system:** glass tokens live in `src/app/globals.css` (`--bg-base`, `--bg-surface`, `--accent`, `--glow`, …); accent color stays user-customizable via `SettingsContext`.
+- **Primitives:** `src/app/components/ui/GlassCard.tsx`, `StatCard.tsx`.
+- **Floating Quick Action:** `FloatingQuickAction.tsx` (FAB) + `QuickActionProvider.tsx` (context for modals/toasts).
+- **AI Chat:** `/api/ai-chat/route.ts` reads the authenticated user's data from Supabase, builds a compact summary, and forwards to Gemini (model set by `GEMINI_MODEL`, default `gemini-2.5-flash`). UI is `components/AIChatDrawer.tsx`.
+- **Push notifications:** custom worker chunk in `/worker/index.ts` is bundled by `@ducanh2912/next-pwa` into the generated SW. `lib/push.ts` subscribes the browser; `/api/save-subscription` stores the endpoint; `/api/send-briefing` fans out the daily push.

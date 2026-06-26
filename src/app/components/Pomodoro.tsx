@@ -21,8 +21,15 @@ export function Pomodoro() {
             const nextMode = mode === 'work' ? 'break' : 'work'
             setMode(nextMode)
 
-            const alertMsg = nextMode === 'break' 
-              ? '🍅 Pomodoro Completed! Time to take a break.' 
+            // Persist the completed session (mode that JUST finished)
+            const justFinishedMode = mode
+            const justFinishedMinutes = justFinishedMode === 'work' ? 25 : 5
+            import('../actions').then(({ logPomodoroSession }) => {
+              logPomodoroSession(justFinishedMinutes, justFinishedMode).catch(() => {})
+            })
+
+            const alertMsg = nextMode === 'break'
+              ? '🍅 Pomodoro Completed! Time to take a break.'
               : '⚡ Break Completed! Ready to focus?'
 
             // Invoke the client-side Telegram notification utility

@@ -5,7 +5,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react'
 export type AccentColor = 'indigo' | 'emerald' | 'rose' | 'amber' | 'cyan'
 
 export const accentColors: Record<AccentColor, { label: string; rgb: string; bgClass: string; hex: string }> = {
-  indigo: { label: 'Indigo', rgb: '99, 102, 241', bgClass: 'bg-indigo-500', hex: '#6366f1' },
+  indigo: { label: 'Indigo', rgb: '91, 108, 255', bgClass: 'bg-[#5b6cff]', hex: '#5b6cff' },
   emerald: { label: 'Emerald', rgb: '16, 185, 129', bgClass: 'bg-emerald-500', hex: '#10b981' },
   rose: { label: 'Rose', rgb: '244, 63, 94', bgClass: 'bg-rose-500', hex: '#f43f5e' },
   amber: { label: 'Amber', rgb: '245, 158, 11', bgClass: 'bg-amber-500', hex: '#f59e0b' },

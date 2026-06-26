@@ -66,7 +66,7 @@ export default async function FinancePage({
   const netBalance = cashBalance + cashlessBalance
 
   return (
-    <div className="flex flex-col gap-8 h-full">
+    <div className="flex flex-col gap-6 md:gap-8 h-full">
       <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-medium tracking-tight text-white mb-1.5">Finance Tracker</h1>
@@ -78,46 +78,29 @@ export default async function FinancePage({
       {/* Expense Category Analytics */}
       <ExpenseChart transactions={typedMonthlyTransactions} selectedMonthStr={currentMonthStr} />
 
-      {/* Grid Summaries */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {/* Net Balance */}
-        <div className="p-5 rounded-2xl border border-neutral-900 bg-neutral-900/10">
-          <div className="flex justify-between items-start mb-4">
-            <Wallet className="w-4 h-4 text-neutral-400 stroke-[1.5px]" />
+      {/* Grid Summaries — compact rows on mobile, stacked cards on larger screens */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4">
+        {[
+          { icon: Wallet, iconColor: 'text-neutral-400', label: 'Total Net Worth', value: netBalance, valueColor: netBalance >= 0 ? 'text-white' : 'text-red-400' },
+          { icon: Banknote, iconColor: 'text-emerald-400', label: 'Physical Cash', value: cashBalance, valueColor: cashBalance >= 0 ? 'text-emerald-400' : 'text-red-400' },
+          { icon: CreditCard, iconColor: 'text-blue-400', label: 'Cashless/Digital', value: cashlessBalance, valueColor: cashlessBalance >= 0 ? 'text-blue-400' : 'text-red-400' },
+        ].map(({ icon: Icon, iconColor, label, value, valueColor }) => (
+          <div
+            key={label}
+            className="px-4 py-3 sm:p-5 rounded-2xl border border-neutral-900 bg-neutral-900/10 flex items-center justify-between gap-3 sm:flex-col sm:items-start sm:justify-start"
+          >
+            <div className="flex items-center gap-2 sm:w-full sm:justify-between sm:mb-4">
+              <Icon className={`w-4 h-4 ${iconColor} stroke-[1.5px] flex-shrink-0`} />
+              <span className="text-xs text-neutral-500 sm:hidden">{label}</span>
+            </div>
+            <div className="flex flex-col items-end sm:items-start min-w-0">
+              <p className={`text-base sm:text-2xl font-semibold tracking-tight font-mono truncate ${valueColor}`}>
+                {value < 0 ? '-' : ''}{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(Math.abs(value))}
+              </p>
+              <p className="hidden sm:block text-xs text-neutral-500 mt-1">{label}</p>
+            </div>
           </div>
-          <p className={`text-2xl font-semibold tracking-tight font-mono ${
-            netBalance >= 0 ? 'text-white' : 'text-red-400'
-          }`}>
-            {netBalance >= 0 ? '' : '-'}{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(Math.abs(netBalance))}
-          </p>
-          <p className="text-xs text-neutral-500 mt-1">Total Net Worth</p>
-        </div>
-
-        {/* Physical Cash */}
-        <div className="p-5 rounded-2xl border border-neutral-900 bg-neutral-900/10">
-          <div className="flex justify-between items-start mb-4">
-            <Banknote className="w-4 h-4 text-emerald-400 stroke-[1.5px]" />
-          </div>
-          <p className={`text-2xl font-semibold tracking-tight font-mono ${
-            cashBalance >= 0 ? 'text-emerald-400' : 'text-red-400'
-          }`}>
-            {cashBalance >= 0 ? '' : '-'}{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(Math.abs(cashBalance))}
-          </p>
-          <p className="text-xs text-neutral-500 mt-1">Physical Cash</p>
-        </div>
-
-        {/* Cashless/Digital */}
-        <div className="p-5 rounded-2xl border border-neutral-900 bg-neutral-900/10">
-          <div className="flex justify-between items-start mb-4">
-            <CreditCard className="w-4 h-4 text-blue-400 stroke-[1.5px]" />
-          </div>
-          <p className={`text-2xl font-semibold tracking-tight font-mono ${
-            cashlessBalance >= 0 ? 'text-blue-400' : 'text-red-400'
-          }`}>
-            {cashlessBalance >= 0 ? '' : '-'}{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(Math.abs(cashlessBalance))}
-          </p>
-          <p className="text-xs text-neutral-500 mt-1">Cashless/Digital</p>
-        </div>
+        ))}
       </div>
 
       {/* Add form */}

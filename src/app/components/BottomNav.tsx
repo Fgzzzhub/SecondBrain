@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Home, DollarSign, Cigarette, CheckSquare, Menu, X, LogOut, Compass } from 'lucide-react'
+import { Home, DollarSign, Cigarette, Compass, Menu, X, LogOut } from 'lucide-react'
 import { SidebarLinks } from './SidebarLinks'
 import { triggerHaptic } from '@/lib/haptic'
 import { createClient } from '@/lib/supabase/client'
@@ -35,36 +35,27 @@ export function BottomNav() {
     }
   }
 
-  // Reset visibility when navigating to a new page
   useEffect(() => {
     setIsVisible(true)
   }, [pathname])
 
-  // Scroll detection inside the window with overscroll safeguards
   useEffect(() => {
     let lastScrollY = window.scrollY
     let ticking = false
 
     const handleScroll = () => {
-      // Safety: Never hide bottom nav when the drawer is open
       if (menuOpen) return
 
       const currentScrollY = window.scrollY
-      
-      // Absolute Top Safety Net: always show at the top
+
       if (currentScrollY <= 10) {
         setIsVisible(true)
-      } 
-      // Prevent hiding on negative scroll (iOS bounce / overscroll)
-      else if (currentScrollY < 0) {
+      } else if (currentScrollY < 0) {
         setIsVisible(true)
-      }
-      // Normal scroll logic with a threshold to prevent micro-flickering
-      else if (currentScrollY > lastScrollY + 5) {
-        setIsVisible(false) // Scrolling down
-      } 
-      else if (currentScrollY < lastScrollY - 5) {
-        setIsVisible(true)  // Scrolling up
+      } else if (currentScrollY > lastScrollY + 5) {
+        setIsVisible(false)
+      } else if (currentScrollY < lastScrollY - 5) {
+        setIsVisible(true)
       }
 
       lastScrollY = currentScrollY
@@ -82,14 +73,12 @@ export function BottomNav() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [menuOpen])
 
-  // Lock document body scroll when drawer is open
   useEffect(() => {
     if (menuOpen) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = ''
     }
-    
     return () => {
       document.body.style.overflow = ''
     }
@@ -97,9 +86,9 @@ export function BottomNav() {
 
   return (
     <>
-      {/* 5 Main Tabs - Fixed bottom with slide animation */}
+      {/* Glass bottom nav (mobile) */}
       <nav
-        className={`md:hidden fixed bottom-0 left-0 w-full h-[calc(4rem+env(safe-area-inset-bottom))] bg-white/80 dark:bg-neutral-950/80 backdrop-blur-md border-t border-neutral-200/50 dark:border-neutral-800/40 flex items-center justify-around px-2 z-[10000] pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ease-in-out bottom-nav-container ${
+        className={`md:hidden fixed bottom-0 left-0 w-full h-[calc(4rem+env(safe-area-inset-bottom))] glass-strong border-t border-[var(--border-strong)] flex items-center justify-around px-2 z-[10000] pb-[env(safe-area-inset-bottom)] transition-transform duration-300 ease-in-out bottom-nav-container ${
           isVisible ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
@@ -113,20 +102,26 @@ export function BottomNav() {
                 triggerHaptic(15)
                 setMenuOpen(false)
               }}
-              className="flex flex-col items-center justify-center gap-1 flex-1 py-1.5 text-center transition-colors"
+              className="relative flex flex-col items-center justify-center gap-1 flex-1 py-1.5 text-center transition-colors"
             >
+              {isActive && !menuOpen && (
+                <span
+                  aria-hidden="true"
+                  className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2px] rounded-full bg-[rgb(var(--color-primary))]"
+                />
+              )}
               <item.icon
-                className={`w-4.5 h-4.5 transition-all ${
+                className={`w-[18px] h-[18px] transition-all ${
                   isActive && !menuOpen
-                    ? 'text-[rgb(var(--color-primary))] scale-105 stroke-[2px]'
-                    : 'text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 stroke-[1.5px]'
+                    ? 'text-[rgb(var(--color-primary))] scale-110 stroke-[2px]'
+                    : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] stroke-[1.5px]'
                 }`}
               />
               <span
                 className={`text-[9px] transition-all font-medium ${
                   isActive && !menuOpen
                     ? 'text-[rgb(var(--color-primary))] font-semibold'
-                    : 'text-neutral-400 dark:text-neutral-500'
+                    : 'text-[var(--text-secondary)]'
                 }`}
               >
                 {item.label}
@@ -135,26 +130,31 @@ export function BottomNav() {
           )
         })}
 
-        {/* Menu Tab */}
         <button
           onClick={() => {
             triggerHaptic(15)
             setMenuOpen(!menuOpen)
           }}
-          className="flex flex-col items-center justify-center gap-1 flex-1 py-1.5 text-center transition-colors cursor-pointer"
+          className="relative flex flex-col items-center justify-center gap-1 flex-1 py-1.5 text-center transition-colors cursor-pointer"
         >
+          {menuOpen && (
+            <span
+              aria-hidden="true"
+              className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2px] rounded-full bg-[rgb(var(--color-primary))]"
+            />
+          )}
           <Menu
-            className={`w-4.5 h-4.5 transition-all ${
+            className={`w-[18px] h-[18px] transition-all ${
               menuOpen
-                ? 'text-[rgb(var(--color-primary))] scale-105 stroke-[2px]'
-                : 'text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 stroke-[1.5px]'
+                ? 'text-[rgb(var(--color-primary))] scale-110 stroke-[2px]'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] stroke-[1.5px]'
             }`}
           />
           <span
             className={`text-[9px] transition-all font-medium ${
               menuOpen
                 ? 'text-[rgb(var(--color-primary))] font-semibold'
-                : 'text-neutral-400 dark:text-neutral-500'
+                : 'text-[var(--text-secondary)]'
             }`}
           >
             Menu
@@ -168,36 +168,34 @@ export function BottomNav() {
           triggerHaptic(10)
           setMenuOpen(false)
         }}
-        className={`md:hidden fixed inset-0 bg-neutral-950/40 dark:bg-neutral-950/60 z-[10010] transition-opacity duration-300 ${
+        className={`md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[10010] transition-opacity duration-300 ${
           menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       />
 
       {/* Bottom Sheet Drawer */}
       <div
-        className={`md:hidden fixed bottom-0 left-0 w-full max-h-[75vh] bg-white/95 dark:bg-neutral-950/95 backdrop-blur-lg border-t border-neutral-200/50 dark:border-neutral-800/40 rounded-t-2xl z-[10020] p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] transition-all duration-300 transform flex flex-col gap-4 ${
+        className={`md:hidden fixed bottom-0 left-0 w-full max-h-[80vh] glass-strong rounded-t-3xl z-[10020] p-6 pb-[calc(2rem+env(safe-area-inset-bottom))] transition-transform duration-300 transform flex flex-col gap-4 ${
           menuOpen ? 'translate-y-0 pointer-events-auto' : 'translate-y-full pointer-events-none'
         }`}
       >
-        {/* Drawer Handle */}
         <div className="flex justify-center flex-shrink-0">
-          <div className="w-10 h-1 bg-neutral-200 dark:bg-neutral-800 rounded-full" />
+          <div className="w-12 h-1 bg-[var(--border-strong)] rounded-full" />
         </div>
 
         <div className="flex items-center justify-between flex-shrink-0">
-          <span className="text-xs font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-500">More Modules</span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-secondary)]">More Modules</span>
           <button
             onClick={() => {
               triggerHaptic(10)
               setMenuOpen(false)
             }}
-            className="text-neutral-400 hover:text-neutral-900 dark:hover:text-white p-1 rounded-md transition-colors cursor-pointer"
+            className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] p-1 rounded-md transition-colors cursor-pointer"
           >
             <X className="w-4 h-4 stroke-[1.5px]" />
           </button>
         </div>
 
-        {/* Scrollable List container for drawer items using SidebarLinks style */}
         <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none'] pr-1 pb-4">
           <SidebarLinks onLinkClick={() => {
             triggerHaptic(15)
@@ -205,11 +203,10 @@ export function BottomNav() {
           }} showOnlyDrawerItems={true} />
         </div>
 
-        {/* Pinned Sign Out Section */}
-        <div className="pt-4 border-t border-neutral-200 dark:border-neutral-800 flex-shrink-0">
+        <div className="pt-4 border-t border-[var(--border)] flex-shrink-0">
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-neutral-450 hover:text-red-500 hover:bg-red-500/5 dark:hover:bg-red-500/10 border border-transparent hover:border-red-500/20 text-xs font-semibold transition-all cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-[var(--text-secondary)] hover:text-[var(--danger)] hover:bg-[rgba(239,68,68,0.08)] border border-transparent hover:border-[rgba(239,68,68,0.25)] text-xs font-semibold transition-all cursor-pointer"
           >
             <LogOut className="w-4 h-4 stroke-[1.5px]" />
             Sign Out
