@@ -73,14 +73,31 @@ export async function runAutomations() {
 
   const transactionsToInsert: any[] = []
   const rulesToUpdate: { id: string; last_processed_at: string }[] = []
-
   for (const rule of rules) {
-    // If last_processed_at is null, default to today so it runs from today onwards
-    const lastProcessedStr = rule.last_processed_at || todayStr
-    const lastProcessed = parseLocalDate(lastProcessedStr)
+    // Determine start date
+    const startDateStr = rule.start_date || todayStr
+    const startDate = parseLocalDate(startDateStr)
+
+    // Skip if today is before the start date
+    if (today < startDate) {
+      continue
+    }
+
+    const triggerHour = rule.trigger_hour !== undefined && rule.trigger_hour !== null ? Number(rule.trigger_hour) : 12
 
     if (rule.frequency === 'daily') {
-      const interval = rule.billing_day || 1
+      const interval = rule.billing_day || 1 // default to 1-day interval
+
+      // If last_processed_at is null, baseline is startDate - interval
+      let lastProcessed: Date
+      if (!rule.last_processed_at) {
+        const temp = new Date(startDate)
+        temp.setDate(temp.getDate() - interval)
+        lastProcessed = temp
+      } else {
+        lastProcessed = parseLocalDate(rule.last_processed_at)
+      }
+
       const diffTime = today.getTime() - lastProcessed.getTime()
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
 
@@ -90,7 +107,12 @@ export async function runAutomations() {
         for (let i = 1; i <= occurrences; i++) {
           const missedDate = new Date(lastProcessed)
           missedDate.setDate(missedDate.getDate() + i * interval)
-          missedDate.setHours(12, 0, 0, 0) // Midday to avoid boundary shifts
+          
+          // Align with trigger hour in user's local timezone (assume WIB / UTC+7)
+          const yr = missedDate.getFullYear()
+          const mo = missedDate.getMonth() + 1
+          const dy = missedDate.getDate()
+          const exactTime = new Date(Date.UTC(yr, mo - 1, dy, triggerHour - 7, 0, 0, 0))
 
           transactionsToInsert.push({
             user_id: rule.user_id,
@@ -100,10 +122,11 @@ export async function runAutomations() {
             wallet_name: rule.wallet_name || 'Cashless',
             wallet_type: rule.wallet_name === 'Cash' ? 'Cash' : 'Cashless',
             category: rule.category || 'Lainnya',
-            created_at: missedDate.toISOString()
+            created_at: exactTime.toISOString()
           })
         }
 
+        // Update rulesProcessed to the exact calendar date of the last occurrence
         const finalProcessedDate = new Date(lastProcessed)
         finalProcessedDate.setDate(lastProcessed.getDate() + occurrences * interval)
         const finalProcessedStr = getLocalDateString(finalProcessedDate)
@@ -111,14 +134,30 @@ export async function runAutomations() {
         rulesToUpdate.push({ id: rule.id, last_processed_at: finalProcessedStr })
       }
     } else if (rule.frequency === 'monthly') {
+      const billingDay = rule.billing_day || 1
+
+      // If last_processed_at is null, baseline is month before startDate's month
+      let lastProcessed: Date
+      if (!rule.last_processed_at) {
+        const temp = new Date(startDate)
+        temp.setMonth(temp.getMonth() - 1)
+        lastProcessed = temp
+      } else {
+        lastProcessed = parseLocalDate(rule.last_processed_at)
+      }
+
       const todayDay = today.getDate()
       const isOlderMonth = 
         lastProcessed.getFullYear() < today.getFullYear() || 
         (lastProcessed.getFullYear() === today.getFullYear() && lastProcessed.getMonth() < today.getMonth())
 
-      if (todayDay >= (rule.billing_day || 1) && isOlderMonth) {
-        const billingDate = new Date(today.getFullYear(), today.getMonth(), rule.billing_day || 1, 12, 0, 0, 0)
-        
+      if (todayDay >= billingDay && isOlderMonth) {
+        // Align with trigger hour in user's local timezone (assume WIB / UTC+7)
+        const yr = today.getFullYear()
+        const mo = today.getMonth() + 1
+        const dy = billingDay
+        const exactTime = new Date(Date.UTC(yr, mo - 1, dy, triggerHour - 7, 0, 0, 0))
+
         transactionsToInsert.push({
           user_id: rule.user_id,
           amount: rule.amount,
@@ -127,7 +166,7 @@ export async function runAutomations() {
           wallet_name: rule.wallet_name || 'Cashless',
           wallet_type: rule.wallet_name === 'Cash' ? 'Cash' : 'Cashless',
           category: rule.category || 'Lainnya',
-          created_at: billingDate.toISOString()
+          created_at: exactTime.toISOString()
         })
         rulesToUpdate.push({ id: rule.id, last_processed_at: todayStr })
       }

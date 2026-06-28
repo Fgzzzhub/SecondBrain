@@ -17,6 +17,8 @@ interface AutoRule {
   billing_day: number | null
   last_processed_at: string | null
   created_at: string
+  start_date?: string | null
+  trigger_hour?: number | null
 }
 
 interface AutoFinanceManagerProps {
@@ -55,6 +57,15 @@ export function AutoFinanceManager({ initialRules }: AutoFinanceManagerProps) {
   const [uiFrequency, setUiFrequency] = useState<'daily' | 'interval' | 'monthly'>('daily')
   const [intervalDays, setIntervalDays] = useState('3')
   const [billingDay, setBillingDay] = useState('')
+
+  const [startDate, setStartDate] = useState(() => {
+    const today = new Date()
+    const y = today.getFullYear()
+    const m = String(today.getMonth() + 1).padStart(2, '0')
+    const d = String(today.getDate()).padStart(2, '0')
+    return `${y}-${m}-${d}`
+  })
+  const [triggerHour, setTriggerHour] = useState('12')
 
   const [isPending, startTransition] = useTransition()
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
@@ -124,8 +135,10 @@ export function AutoFinanceManager({ initialRules }: AutoFinanceManagerProps) {
           wallet_name: actualWallet,
           frequency: actualFreq,
           billing_day: dayNum,
-          last_processed_at: new Date().toISOString().split('T')[0],
-          created_at: new Date().toISOString()
+          last_processed_at: null,
+          created_at: new Date().toISOString(),
+          start_date: startDate,
+          trigger_hour: parseInt(triggerHour)
         }
 
         // Optimistic UI update
@@ -141,8 +154,24 @@ export function AutoFinanceManager({ initialRules }: AutoFinanceManagerProps) {
         setWalletName('Cash')
         setCategory('Lainnya')
         setUiFrequency('daily')
+        const today = new Date()
+        const y = today.getFullYear()
+        const m = String(today.getMonth() + 1).padStart(2, '0')
+        const d = String(today.getDate()).padStart(2, '0')
+        setStartDate(`${y}-${m}-${d}`)
+        setTriggerHour('12')
 
-        await createAutoTransaction(title, type, amtNum, category, actualWallet, actualFreq, dayNum)
+        await createAutoTransaction(
+          title,
+          type,
+          amtNum,
+          category,
+          actualWallet,
+          actualFreq,
+          dayNum,
+          startDate,
+          parseInt(triggerHour)
+        )
         setToast({ message: `Successfully created automated rule: ${title}`, type: 'success' })
       } catch (err: any) {
         console.error(err)
@@ -353,6 +382,31 @@ export function AutoFinanceManager({ initialRules }: AutoFinanceManagerProps) {
                 )}
               </div>
 
+              {/* Start Date & Trigger Hour */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] text-neutral-400 dark:text-neutral-500 uppercase font-semibold">Start Date (Kapan Pertama Dimulai)</label>
+                  <input
+                    type="date"
+                    required
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="bg-neutral-50 dark:bg-neutral-900 text-xs text-neutral-800 dark:text-white border border-neutral-200 dark:border-neutral-800 rounded-lg p-2.5 outline-none w-full [color-scheme:dark]"
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[10px] text-neutral-400 dark:text-neutral-500 uppercase font-semibold">Trigger Hour (Setiap Jam Berapa WIB)</label>
+                  <AnimatedSelect
+                    value={triggerHour}
+                    onChange={(val) => setTriggerHour(val)}
+                    options={Array.from({ length: 24 }).map((_, h) => ({
+                      value: String(h),
+                      label: `${String(h).padStart(2, '0')}:00 WIB`
+                    }))}
+                  />
+                </div>
+              </div>
               <div className="flex justify-end gap-2.5 mt-2">
                 <button
                   type="button"
@@ -400,18 +454,30 @@ export function AutoFinanceManager({ initialRules }: AutoFinanceManagerProps) {
               >
                 {/* Header title & delete */}
                 <div className="flex justify-between items-start gap-2">
-                  <div>
+                  <div className="min-w-0 flex-1">
                     <h4 className="text-sm font-semibold text-neutral-900 dark:text-white truncate">
                       {rule.title}
                     </h4>
-                    <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full mt-1.5 font-mono uppercase tracking-wider ${
-                      isIncome 
-                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' 
-                        : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
-                    }`}>
-                      {isIncome ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                      <span>{rule.type}</span>
-                    </span>
+                    <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                      <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full font-mono uppercase tracking-wider ${
+                        isIncome 
+                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' 
+                          : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                      }`}>
+                        {isIncome ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                        <span>{rule.type}</span>
+                      </span>
+                      {rule.start_date && (
+                        <span className="text-[10px] bg-neutral-100 dark:bg-neutral-900/50 text-neutral-500 dark:text-neutral-400 px-2 py-0.5 rounded-full font-medium">
+                          Start: {rule.start_date}
+                        </span>
+                      )}
+                      {rule.trigger_hour !== undefined && rule.trigger_hour !== null && (
+                        <span className="text-[10px] bg-neutral-100 dark:bg-neutral-900/50 text-neutral-500 dark:text-neutral-400 px-2 py-0.5 rounded-full font-medium">
+                          Time: {String(rule.trigger_hour).padStart(2, '0')}:00 WIB
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <button

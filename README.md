@@ -56,6 +56,7 @@ supabase db push   # or run the SQL in supabase/migrations/ manually via dashboa
 New tables added by the AI-chat + push features:
 - `pomodoro_sessions` — one row per completed focus/break session (powers AI context + analytics)
 - `push_subscriptions` — Web Push endpoints per device
+- `auto_transactions` — Auto-Pilot finance rules with configurable frequency, intervals, start dates, and trigger hours.
 
 ## Architecture notes
 

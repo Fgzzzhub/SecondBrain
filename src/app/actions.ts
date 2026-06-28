@@ -1199,18 +1199,23 @@ export async function createAutoTransaction(
   category: string,
   walletName: string,
   frequency: 'daily' | 'monthly',
-  billingDay: number | null
+  billingDay: number | null,
+  startDate: string | null = null,
+  triggerHour: number | null = 0
 ) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error("Unauthorized")
 
-  // Set the initial processed date to today's date in local time YYYY-MM-DD
-  const todayLocal = new Date()
-  const year = todayLocal.getFullYear()
-  const month = String(todayLocal.getMonth() + 1).padStart(2, '0')
-  const date = String(todayLocal.getDate()).padStart(2, '0')
-  const lastProcessedStr = `${year}-${month}-${date}`
+  // Default startDate to today in local time YYYY-MM-DD if not provided
+  let startStr = startDate
+  if (!startStr) {
+    const todayLocal = new Date()
+    const year = todayLocal.getFullYear()
+    const month = String(todayLocal.getMonth() + 1).padStart(2, '0')
+    const date = String(todayLocal.getDate()).padStart(2, '0')
+    startStr = `${year}-${month}-${date}`
+  }
 
   const { error } = await supabase
     .from('auto_transactions')
@@ -1221,8 +1226,10 @@ export async function createAutoTransaction(
       category,
       wallet_name: walletName,
       frequency,
-      billing_day: frequency === 'monthly' ? billingDay : null,
-      last_processed_at: lastProcessedStr
+      billing_day: billingDay, // Save billingDay for both daily (interval) and monthly
+      last_processed_at: null, // Start fresh
+      start_date: startStr,
+      trigger_hour: triggerHour ?? 0
     })
 
   if (error) throw new Error(error.message)
