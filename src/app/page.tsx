@@ -5,6 +5,7 @@ import { cookies } from 'next/headers'
 import { Cigarette, DollarSign, StickyNote, ArrowUpRight, Sparkles, Banknote, Building2, CreditCard } from 'lucide-react'
 import { RabbitHoleWidget } from './components/RabbitHoleWidget'
 import { getWalletBalances } from '@/app/actions'
+import { DailyBriefing } from './components/DailyBriefing'
 import { SubscriptionAlerts } from './components/SubscriptionAlerts'
 import { GlassCard } from './components/ui/GlassCard'
 import { StatCard } from './components/ui/StatCard'
@@ -165,7 +166,8 @@ export default async function DashboardPage() {
     { count: tasksCompletedToday },
     { data: todayExpensesData },
     { count: cigarettesToday },
-    { data: subscriptions }
+    { data: subscriptions },
+    { data: settings }
   ] = await Promise.all([
     supabase.from('tasks').select('*', { count: 'exact', head: true }).eq('is_completed', false).eq('user_id', user.id),
     supabase.from('schedule').select('*').eq('user_id', user.id),
@@ -174,7 +176,8 @@ export default async function DashboardPage() {
     supabase.from('tasks').select('*', { count: 'exact', head: true }).eq('is_completed', true).eq('user_id', user.id).gte('completed_at', startOfTodayStr).lte('completed_at', endOfTodayStr),
     supabase.from('transactions').select('amount').eq('user_id', user.id).eq('type', 'expense').neq('description', 'SYSTEM_CALIBRATION').gte('created_at', startOfTodayStr).lte('created_at', endOfTodayStr),
     supabase.from('cigarette_logs').select('*', { count: 'exact', head: true }).eq('user_id', user.id).gte('smoked_at', startOfTodayStr).lte('smoked_at', endOfTodayStr),
-    supabase.from('subscriptions').select('*')
+    supabase.from('subscriptions').select('*'),
+    supabase.from('user_preferences').select('*').eq('id', user.id).maybeSingle()
   ])
 
   const todayName = format(new Date(), 'EEEE')
@@ -182,8 +185,16 @@ export default async function DashboardPage() {
 
   const todayExpensesSum = (todayExpensesData || []).reduce((sum, tx) => sum + Number(tx.amount), 0)
 
+  // Map variables for context-visual stat cards
+  const dailyTarget = (settings as any)?.cigarette_daily_target ?? null
+  const monthlyBudget = (settings as any)?.monthly_budget ?? null
+  const latestNoteTitle = notes?.[0]?.title ?? null
+  const expensesToday = todayExpensesSum
+  const notesCount = notes?.length || 0
+  const cigarettesTodayVal = cigarettesToday || 0
+
   return (
-    <div className="stagger flex flex-col gap-8 md:gap-10">
+    <div className="stagger flex flex-col gap-5 md:gap-6">
       {/* Greeting + Magic Input Wrapper (tight gap) */}
       <div className="flex flex-col gap-3">
         {/* Greeting — clean, minimal */}
@@ -216,8 +227,15 @@ export default async function DashboardPage() {
         <MagicInput />
       </div>
 
+      {/* Daily Briefing Widget */}
+      <DailyBriefing
+        tasksCompleted={tasksCompletedToday || 0}
+        todayExpenses={todayExpensesSum}
+        cigarettesSmoked={cigarettesTodayVal}
+      />
+
       {/* MY WALLETS */}
-      <section style={{ marginBottom: '24px' }}>
+      <section style={{ marginBottom: '0px' }}>
         <p style={{
           fontSize: '11px',
           fontWeight: 600,
@@ -247,29 +265,197 @@ export default async function DashboardPage() {
       {/* Subscription Due Alerts */}
       <SubscriptionAlerts initialSubscriptions={subscriptions || []} />
 
+      {/* Stat Cards — 3 col */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: '12px',
+      }}>
 
-      {/* Stat grid */}
-      <div className="stagger grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard
-          label="Cigarettes Today"
-          value={cigarettesToday || 0}
-          icon={<Cigarette className="w-4 h-4 stroke-[1.5px]" />}
-          href="/cigarettes"
-          numberColor="warning"
-        />
-        <StatCard
-          label="Expenses Today"
-          value={`Rp ${todayExpensesSum.toLocaleString('id-ID')}`}
-          icon={<DollarSign className="w-4 h-4 stroke-[1.5px]" />}
-          href="/finance"
-          numberColor="danger"
-        />
-        <StatCard
-          label="Recent Notes"
-          value={notes?.length || 0}
-          icon={<StickyNote className="w-4 h-4 stroke-[1.5px]" />}
-          href="/notes"
-        />
+        {/* CIGARETTES TODAY */}
+        <Link href="/cigarettes" style={{
+          padding: '14px',
+          borderRadius: '16px',
+          background: 'rgba(255,255,255,0.04)',
+          border: '0.5px solid rgba(255,255,255,0.07)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          textDecoration: 'none',
+        }}>
+          <p style={{
+            fontSize: '10px',
+            fontWeight: 600,
+            color: 'rgba(255,255,255,0.3)',
+            letterSpacing: '0.07em',
+            textTransform: 'uppercase',
+            margin: 0,
+          }}>
+            Rokok
+          </p>
+
+          <p style={{
+            fontSize: '28px',
+            fontWeight: 700,
+            color: cigarettesTodayVal > (dailyTarget ?? 10)
+              ? '#EF4444'
+              : cigarettesTodayVal > (dailyTarget ?? 10) * 0.7
+              ? '#F59E0B'
+              : '#F1F5F9',
+            margin: 0,
+            letterSpacing: '-0.02em',
+            lineHeight: 1,
+          }}>
+            {cigarettesTodayVal}
+          </p>
+
+          {/* Progress bar vs daily target */}
+          {dailyTarget && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div style={{
+                height: '3px',
+                borderRadius: '2px',
+                background: 'rgba(255,255,255,0.08)',
+                overflow: 'hidden',
+              }}>
+                <div style={{
+                  height: '100%',
+                  width: `${Math.min((cigarettesTodayVal / dailyTarget) * 100, 100)}%`,
+                  borderRadius: '2px',
+                  background: cigarettesTodayVal > dailyTarget
+                    ? '#EF4444'
+                    : cigarettesTodayVal > dailyTarget * 0.7
+                    ? '#F59E0B'
+                    : '#10B981',
+                  transition: 'width 0.6s cubic-bezier(0.25,0.46,0.45,0.94)',
+                }} />
+              </div>
+              <p style={{
+                fontSize: '10px',
+                color: 'rgba(255,255,255,0.28)',
+                margin: 0,
+              }}>
+                target {dailyTarget}
+              </p>
+            </div>
+          )}
+        </Link>
+
+        {/* EXPENSES TODAY */}
+        <Link href="/finance" style={{
+          padding: '14px',
+          borderRadius: '16px',
+          background: 'rgba(255,255,255,0.04)',
+          border: '0.5px solid rgba(255,255,255,0.07)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          textDecoration: 'none',
+        }}>
+          <p style={{
+            fontSize: '10px',
+            fontWeight: 600,
+            color: 'rgba(255,255,255,0.3)',
+            letterSpacing: '0.07em',
+            textTransform: 'uppercase',
+            margin: 0,
+          }}>
+            Pengeluaran
+          </p>
+
+          <p style={{
+            fontSize: expensesToday >= 100000 ? '18px' : '24px',
+            fontWeight: 700,
+            color: '#F1F5F9',
+            margin: 0,
+            letterSpacing: '-0.02em',
+            lineHeight: 1,
+          }}>
+            {/* Format singkat: Rp 36k bukan Rp 36.000 agar muat di card kecil */}
+            {expensesToday >= 1000000
+              ? `${(expensesToday / 1000000).toFixed(1)}jt`
+              : expensesToday >= 1000
+              ? `${Math.round(expensesToday / 1000)}k`
+              : `${expensesToday}`}
+          </p>
+
+          {/* Budget usage bar */}
+          {monthlyBudget && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div style={{
+                height: '3px',
+                borderRadius: '2px',
+                background: 'rgba(255,255,255,0.08)',
+                overflow: 'hidden',
+              }}>
+                <div style={{
+                  height: '100%',
+                  // Persentase dari budget harian (budget bulanan / 30)
+                  width: `${Math.min((expensesToday / (monthlyBudget / 30)) * 100, 100)}%`,
+                  borderRadius: '2px',
+                  background: expensesToday > monthlyBudget / 30 ? '#EF4444' : '#6366F1',
+                  transition: 'width 0.6s cubic-bezier(0.25,0.46,0.45,0.94)',
+                }} />
+              </div>
+              <p style={{
+                fontSize: '10px',
+                color: 'rgba(255,255,255,0.28)',
+                margin: 0,
+              }}>
+                {Math.round((expensesToday / (monthlyBudget / 30)) * 100)}% daily
+              </p>
+            </div>
+          )}
+        </Link>
+
+        {/* RECENT NOTES */}
+        <Link href="/notes" style={{
+          padding: '14px',
+          borderRadius: '16px',
+          background: 'rgba(255,255,255,0.04)',
+          border: '0.5px solid rgba(255,255,255,0.07)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          textDecoration: 'none',
+        }}>
+          <p style={{
+            fontSize: '10px',
+            fontWeight: 600,
+            color: 'rgba(255,255,255,0.3)',
+            letterSpacing: '0.07em',
+            textTransform: 'uppercase',
+            margin: 0,
+          }}>
+            Notes
+          </p>
+
+          <p style={{
+            fontSize: '28px',
+            fontWeight: 700,
+            color: '#F1F5F9',
+            margin: 0,
+            letterSpacing: '-0.02em',
+            lineHeight: 1,
+          }}>
+            {notesCount}
+          </p>
+
+          {/* Judul note terbaru */}
+          {latestNoteTitle && (
+            <p style={{
+              fontSize: '10px',
+              color: 'rgba(255,255,255,0.28)',
+              margin: 0,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              lineHeight: 1.3,
+            }}>
+              {latestNoteTitle}
+            </p>
+          )}
+        </Link>
       </div>
 
       {/* Rabbit Hole Curiosity widget */}

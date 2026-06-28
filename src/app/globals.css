@@ -304,4 +304,9 @@ select:focus-visible {
   scrollbar-width: none;
 }
 
+/* Safe area padding untuk PWA iOS */
+.main-content {
+  padding-bottom: calc(88px + 32px + env(safe-area-inset-bottom));
+}
+
 
