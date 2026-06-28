@@ -38,13 +38,14 @@ function formatRupiah(amount: number) {
 
 function WalletCard({ wallet }: { wallet: WalletType }) {
   const getAccent = (name: string, type: string) => {
+    const cardBg = '#131722' // Unified premium dark background
     if (type === 'cash' || name.toLowerCase().includes('cash'))
-      return { primary: '#10B981', bg: '#16231D' } // Calm solid forest/sage
+      return { primary: '#10B981', bg: cardBg } // Green accent
     if (name.toLowerCase().includes('livin') || name.toLowerCase().includes('mandiri'))
-      return { primary: '#F59E0B', bg: '#252016' } // Calm solid amber/gold
+      return { primary: '#F59E0B', bg: cardBg } // Gold/Amber accent
     if (name.toLowerCase().includes('bca'))
-      return { primary: '#3B82F6', bg: '#151C2A' } // Calm solid slate blue
-    return { primary: '#6366F1', bg: '#1B1A24' } // Calm solid slate violet
+      return { primary: '#3B82F6', bg: cardBg } // Blue accent
+    return { primary: '#818CF8', bg: cardBg } // Indigo/Violet accent
   }
 
   const walletType = wallet.type || (
@@ -78,6 +79,7 @@ function WalletCard({ wallet }: { wallet: WalletType }) {
       <div style={{
         position: 'absolute',
         inset: 0,
+
         backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.02'/%3E%3C/svg%3E")`,
         opacity: 0.3,
         pointerEvents: 'none',
