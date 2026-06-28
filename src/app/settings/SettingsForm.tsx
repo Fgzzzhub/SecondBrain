@@ -97,7 +97,7 @@ export function SettingsForm({ initialPrefs, initialUser }: SettingsFormProps) {
   return (
     <div className="flex flex-col gap-6 max-w-lg">
       {/* Profile Section */}
-      <div className="flex flex-col gap-4 p-5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+      <div className="flex flex-col gap-4 p-5 rounded-2xl border border-neutral-200 dark:border-neutral-900 bg-neutral-50/20 dark:bg-neutral-900/5 relative overflow-hidden">
         <div className="flex flex-col gap-0.5">
           <h3 className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider">Profile</h3>
           <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-normal">Update your public display name for forum posts and comments.</p>
@@ -111,13 +111,13 @@ export function SettingsForm({ initialPrefs, initialUser }: SettingsFormProps) {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Friend"
-              className="flex-1 bg-neutral-55 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 rounded-md p-2 outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors"
+              className="flex-1 bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-800 rounded-xl p-2.5 outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors"
             />
             <button
               type="button"
               onClick={handleUpdateProfile}
               disabled={updatingProfile}
-              className="px-4 py-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 rounded-md text-xs font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 rounded-xl text-xs font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
             >
               {updatingProfile ? 'Saving...' : 'Save'}
             </button>
@@ -136,7 +136,7 @@ export function SettingsForm({ initialPrefs, initialUser }: SettingsFormProps) {
       )}
 
       {/* General Settings */}
-      <div className="flex flex-col gap-4 p-5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+      <div className="flex flex-col gap-4 p-5 rounded-2xl border border-neutral-200 dark:border-neutral-900 bg-neutral-50/20 dark:bg-neutral-900/5 relative overflow-hidden">
         <h3 className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider">General</h3>
         
         <div className="flex flex-col gap-1.5">
@@ -146,13 +146,13 @@ export function SettingsForm({ initialPrefs, initialUser }: SettingsFormProps) {
             name="user_name"
             defaultValue={initialPrefs?.user_name || ''}
             placeholder="Your name"
-            className="w-full bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 rounded-md p-2 outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors"
+            className="w-full bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-800 rounded-xl p-2.5 outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors"
           />
         </div>
       </div>
 
       {/* Appearance / Theme Settings */}
-      <div className="flex flex-col gap-4 p-5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+      <div className="flex flex-col gap-4 p-5 rounded-2xl border border-neutral-200 dark:border-neutral-900 bg-neutral-50/20 dark:bg-neutral-900/5 relative overflow-hidden">
         <h3 className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider">Appearance</h3>
         
         <div className="flex items-center justify-between py-1 gap-4">
@@ -162,7 +162,7 @@ export function SettingsForm({ initialPrefs, initialUser }: SettingsFormProps) {
           </div>
 
           {mounted ? (
-            <div className="flex gap-1 p-1 rounded-lg border border-neutral-200 dark:border-neutral-850 bg-neutral-50 dark:bg-neutral-950 transition-colors">
+            <div className="flex gap-1 p-1 rounded-xl border border-neutral-200 dark:border-neutral-900 bg-neutral-50/50 dark:bg-neutral-950 transition-colors">
               <button
                 type="button"
                 onClick={() => setTheme('light')}
@@ -207,7 +207,7 @@ export function SettingsForm({ initialPrefs, initialUser }: SettingsFormProps) {
       </div>
 
       {/* Pomodoro Settings */}
-      <div className="flex flex-col gap-4 p-5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+      <div className="flex flex-col gap-4 p-5 rounded-2xl border border-neutral-200 dark:border-neutral-900 bg-neutral-50/20 dark:bg-neutral-900/5 relative overflow-hidden">
         <h3 className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider">Pomodoro Timer Settings</h3>
         
         <div className="grid grid-cols-2 gap-4">
@@ -220,7 +220,7 @@ export function SettingsForm({ initialPrefs, initialUser }: SettingsFormProps) {
               min="1"
               max="120"
               required
-              className="w-full bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 rounded-md p-2 outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors"
+              className="w-full bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-800 rounded-xl p-2.5 outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors"
             />
           </div>
 
@@ -233,14 +233,14 @@ export function SettingsForm({ initialPrefs, initialUser }: SettingsFormProps) {
               min="1"
               max="60"
               required
-              className="w-full bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-700 rounded-md p-2 outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors"
+              className="w-full bg-neutral-50 dark:bg-neutral-950 text-xs text-neutral-900 dark:text-white border border-neutral-200 dark:border-neutral-800 rounded-xl p-2.5 outline-none focus:border-neutral-400 dark:focus:border-neutral-600 transition-colors"
             />
           </div>
         </div>
       </div>
 
       {/* Privacy settings */}
-      <div className="flex flex-col gap-4 p-5 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">
+      <div className="flex flex-col gap-4 p-5 rounded-2xl border border-neutral-200 dark:border-neutral-900 bg-neutral-50/20 dark:bg-neutral-900/5 relative overflow-hidden">
         <h3 className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider">Privacy & Display</h3>
         
         <div className="flex items-center justify-between py-1 gap-4">
@@ -252,10 +252,10 @@ export function SettingsForm({ initialPrefs, initialUser }: SettingsFormProps) {
           <button
             type="button"
             onClick={() => setHideBalance(!hideBalance)}
-            className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-colors ${
+            className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-colors ${
               hideBalance 
                 ? 'border-neutral-400 dark:border-neutral-600 bg-neutral-200 dark:bg-neutral-800 text-neutral-900 dark:text-white font-semibold' 
-                : 'border-neutral-200 dark:border-neutral-700 text-neutral-400 dark:text-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-850'
+                : 'border-neutral-200 dark:border-neutral-800 text-neutral-400 dark:text-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-850'
             }`}
             title={hideBalance ? 'Show balance' : 'Hide balance'}
           >
@@ -265,7 +265,7 @@ export function SettingsForm({ initialPrefs, initialUser }: SettingsFormProps) {
       </div>
 
       {/* Personalization (Accent Color) */}
-      <div className="flex flex-col gap-4 p-5 rounded-xl border border-neutral-200 dark:border-neutral-850 bg-white dark:bg-neutral-900">
+      <div className="flex flex-col gap-4 p-5 rounded-2xl border border-neutral-200 dark:border-neutral-900 bg-neutral-50/20 dark:bg-neutral-900/5 relative overflow-hidden">
         <h3 className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider">Accent Color</h3>
         <p className="text-[10px] text-neutral-500 dark:text-neutral-400">Customize the primary accent color for active items, buttons, and highlights.</p>
         
@@ -297,7 +297,7 @@ export function SettingsForm({ initialPrefs, initialUser }: SettingsFormProps) {
       </div>
 
       {/* Module Toggles */}
-      <div className="flex flex-col gap-4 p-5 rounded-xl border border-neutral-200 dark:border-neutral-850 bg-white dark:bg-neutral-900">
+      <div className="flex flex-col gap-4 p-5 rounded-2xl border border-neutral-200 dark:border-neutral-900 bg-neutral-50/20 dark:bg-neutral-900/5 relative overflow-hidden">
         <div className="flex flex-col gap-0.5">
           <h3 className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 uppercase tracking-wider">Active Modules</h3>
           <p className="text-[10px] text-neutral-500 dark:text-neutral-400">Toggle optional features to simplify and declutter your navigation feed.</p>
@@ -352,7 +352,7 @@ export function SettingsForm({ initialPrefs, initialUser }: SettingsFormProps) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-3 rounded-lg bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-semibold hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+        className="w-full py-3 rounded-xl bg-neutral-950 dark:bg-white text-white dark:text-neutral-950 text-xs font-semibold hover:bg-neutral-800 dark:hover:bg-neutral-200 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
       >
         <Save className="w-4 h-4 stroke-[2px]" />
         {loading ? 'Saving Preferences...' : 'Save Preferences'}
@@ -360,7 +360,7 @@ export function SettingsForm({ initialPrefs, initialUser }: SettingsFormProps) {
     </form>
 
       {/* Danger Zone: Log Out */}
-      <div className="flex flex-col gap-4 p-5 rounded-xl border border-red-500/20 dark:border-red-550/20 bg-red-500/5 dark:bg-red-500/5">
+      <div className="flex flex-col gap-4 p-5 rounded-2xl border border-red-500/20 dark:border-red-500/10 bg-red-500/5 dark:bg-red-500/5 relative overflow-hidden">
         <div className="flex flex-col gap-0.5">
           <h3 className="text-xs font-semibold text-red-500 uppercase tracking-wider">Danger Zone</h3>
           <p className="text-[10px] text-neutral-550 dark:text-neutral-400">Actions that affect your local session and configuration settings.</p>
