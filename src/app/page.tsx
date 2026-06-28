@@ -39,12 +39,12 @@ function formatRupiah(amount: number) {
 function WalletCard({ wallet }: { wallet: WalletType }) {
   const getAccent = (name: string, type: string) => {
     if (type === 'cash' || name.toLowerCase().includes('cash'))
-      return { primary: '#10B981', secondary: '#059669', bg: 'linear-gradient(135deg, #064E3B 0%, #065F46 50%, #047857 100%)' }
+      return { primary: '#10B981', bg: '#16231D' } // Calm solid forest/sage
     if (name.toLowerCase().includes('livin') || name.toLowerCase().includes('mandiri'))
-      return { primary: '#F59E0B', secondary: '#D97706', bg: 'linear-gradient(135deg, #1C1506 0%, #2D1F07 50%, #1A1204 100%)' }
+      return { primary: '#F59E0B', bg: '#252016' } // Calm solid amber/gold
     if (name.toLowerCase().includes('bca'))
-      return { primary: '#3B82F6', secondary: '#2563EB', bg: 'linear-gradient(135deg, #0C1A3A 0%, #0F2350 50%, #0A1628 100%)' }
-    return { primary: '#6366F1', secondary: '#4F46E5', bg: 'linear-gradient(135deg, #1E1B4B 0%, #2D2A6E 40%, #1A1740 100%)' }
+      return { primary: '#3B82F6', bg: '#151C2A' } // Calm solid slate blue
+    return { primary: '#6366F1', bg: '#1B1A24' } // Calm solid slate violet
   }
 
   const walletType = wallet.type || (
@@ -66,35 +66,22 @@ function WalletCard({ wallet }: { wallet: WalletType }) {
         overflow: 'hidden',
         flexShrink: 0,
         cursor: 'pointer',
-        border: `1px solid ${accent.primary}25`,
+        border: `1px solid rgba(255, 255, 255, 0.08)`,
         boxShadow: `
-          0 4px 20px rgba(0,0,0,0.4),
-          0 1px 0 rgba(255,255,255,0.08) inset,
-          0 0 0 0.5px rgba(255,255,255,0.06)
+          0 4px 14px rgba(0, 0, 0, 0.25),
+          inset 0 1px 0 rgba(255, 255, 255, 0.04)
         `,
-        transition: 'transform 0.2s cubic-bezier(0.34,1.56,0.64,1)',
+        transition: 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
       }}
     >
-      {/* Noise texture overlay — subtle grain */}
+      {/* Noise texture overlay — very subtle matte texture */}
       <div style={{
         position: 'absolute',
         inset: 0,
-        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E")`,
-        opacity: 0.4,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.02'/%3E%3C/svg%3E")`,
+        opacity: 0.3,
         pointerEvents: 'none',
         mixBlendMode: 'overlay',
-      }} />
-
-      {/* Specular highlight arc di kiri atas */}
-      <div style={{
-        position: 'absolute',
-        top: '-40px',
-        left: '-40px',
-        width: '140px',
-        height: '140px',
-        borderRadius: '50%',
-        background: `radial-gradient(circle, ${accent.primary}20 0%, transparent 70%)`,
-        pointerEvents: 'none',
       }} />
 
       {/* Content */}
@@ -112,7 +99,7 @@ function WalletCard({ wallet }: { wallet: WalletType }) {
           <span style={{
             fontSize: '13px',
             fontWeight: 600,
-            color: 'rgba(255,255,255,0.75)',
+            color: 'rgba(255,255,255,0.7)',
             letterSpacing: '0.01em',
           }}>
             {wallet.name}
@@ -121,8 +108,8 @@ function WalletCard({ wallet }: { wallet: WalletType }) {
             width: '28px',
             height: '28px',
             borderRadius: '8px',
-            background: `${accent.primary}20`,
-            border: `1px solid ${accent.primary}30`,
+            background: `${accent.primary}15`,
+            border: `1px solid ${accent.primary}20`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -136,7 +123,7 @@ function WalletCard({ wallet }: { wallet: WalletType }) {
           <p style={{
             fontSize: '22px',
             fontWeight: 700,
-            color: 'rgba(255,255,255,0.95)',
+            color: 'rgba(255,255,255,0.9)',
             letterSpacing: '-0.02em',
             margin: '0 0 2px',
             fontVariantNumeric: 'tabular-nums',
@@ -146,7 +133,7 @@ function WalletCard({ wallet }: { wallet: WalletType }) {
           <p style={{
             fontSize: '11px',
             color: `${accent.primary}`,
-            opacity: 0.7,
+            opacity: 0.8,
             margin: 0,
             fontWeight: 500,
           }}>
