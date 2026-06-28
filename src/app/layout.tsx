@@ -109,15 +109,7 @@ export default async function RootLayout({
                   <MobileHeader />
 
                   <SwipeTransition>
-                    <main 
-                      className="flex-1 w-full pt-4 md:pt-6 md:pb-6 md:pr-6"
-                      style={{
-                        paddingBottom: 'calc(88px + 32px)', // navbar + extra breathing room
-                        paddingLeft: '16px',
-                        paddingRight: '16px',
-                        maxWidth: '100%',
-                      }}
-                    >
+                    <main className="flex-1 w-full px-5 sm:px-6 pt-4 pb-36 md:pt-6 md:pb-6 md:pr-6">
                       <div className="max-w-5xl mx-auto">
                         {children}
                       </div>
