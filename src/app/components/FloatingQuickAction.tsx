@@ -576,11 +576,12 @@ function QuickTransactionModal() {
 function QuickTaskModal() {
   const { taskModalOpen, closeTask, toast } = useQuickAction()
   const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
   const [dueDate, setDueDate] = useState('')
   const [pending, startTransition] = useTransition()
 
   useEffect(() => {
-    if (!taskModalOpen) { setTitle(''); setDueDate('') }
+    if (!taskModalOpen) { setTitle(''); setDescription(''); setDueDate('') }
   }, [taskModalOpen])
 
   useEffect(() => {
@@ -596,7 +597,7 @@ function QuickTaskModal() {
 
     const fd = new FormData()
     fd.set('title', title.trim())
-    fd.set('description', '')
+    fd.set('description', description.trim())
     fd.set('due_date', dueDate)
 
     startTransition(async () => {
@@ -647,6 +648,17 @@ function QuickTaskModal() {
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="cth: Selesaikan laporan"
                   className="px-3 py-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[rgba(var(--color-primary),0.7)] transition-all"
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">Detail (opsional)</label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Deskripsi atau catatan detail task..."
+                  rows={3}
+                  className="px-3 py-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border)] outline-none text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[rgba(var(--color-primary),0.7)] transition-all resize-none"
                 />
               </div>
 
