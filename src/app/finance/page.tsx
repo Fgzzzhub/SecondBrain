@@ -6,6 +6,7 @@ import { Wallet, Banknote, CreditCard } from 'lucide-react'
 import { MonthSelector } from '../components/MonthSelector'
 import { format } from 'date-fns'
 import { getWalletBalances } from '@/app/actions'
+import { PendingTransactions } from '../components/finance/PendingTransactions'
 import dynamic from 'next/dynamic'
 
 const ExpenseChart = dynamic(() => import('./ExpenseChart').then(mod => mod.ExpenseChart), {
@@ -21,6 +22,9 @@ interface Transaction {
   wallet_type?: 'Cash' | 'Cashless'
   wallet_name?: string
   category?: string
+  raw_subject?: string
+  confidence?: number
+  source?: string
 }
 
 export default async function FinancePage({
@@ -42,19 +46,27 @@ export default async function FinancePage({
     ? `${year + 1}-01`
     : `${year}-${String(month + 1).padStart(2, '0')}`
 
-  // Fetch only selected month transactions & all-time wallet balances in parallel
-  const [walletBalances, { data: monthlyTransactions }] = await Promise.all([
+  // Fetch only selected month transactions, pending review ones, and all-time wallet balances in parallel
+  const [walletBalances, { data: monthlyTransactions }, { data: pendingTransactions }] = await Promise.all([
     getWalletBalances(),
     supabase
       .from('transactions')
       .select('*')
       .eq('user_id', user.id)
+      .neq('status', 'pending_review') // Exclude unconfirmed automatic transactions
       .gte('created_at', `${currentMonthStr}-01T00:00:00`)
       .lt('created_at', `${nextMonthStr}-01T00:00:00`)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('transactions')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('status', 'pending_review')
       .order('created_at', { ascending: false })
   ])
 
   const typedMonthlyTransactions = (monthlyTransactions || []) as Transaction[]
+  const typedPendingTransactions = (pendingTransactions || []) as Transaction[]
 
   // Compute balance metrics from wallet balances (all-time)
   const cashBalance = walletBalances.find(w => w.name === 'Cash')?.balance || 0
@@ -102,6 +114,11 @@ export default async function FinancePage({
           </div>
         ))}
       </div>
+
+      {/* Pending Transactions for Review */}
+      {typedPendingTransactions.length > 0 && (
+        <PendingTransactions transactions={typedPendingTransactions} />
+      )}
 
       {/* Add form */}
       <div className="max-w-md flex flex-col gap-2">

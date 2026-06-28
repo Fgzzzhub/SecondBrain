@@ -7,6 +7,7 @@ import { groupByDate } from '@/lib/dateUtils'
 import { format } from 'date-fns'
 import { triggerHaptic } from '@/lib/haptic'
 import { motion, AnimatePresence } from 'framer-motion'
+import { AutoBadge } from '../components/finance/AutoBadge'
 
 interface Transaction {
   id: string
@@ -17,7 +18,10 @@ interface Transaction {
   wallet_type?: 'Cash' | 'Cashless'
   wallet_name?: string
   category?: string
+  status?: 'manual' | 'auto' | 'pending_review'
+  confidence?: number
 }
+
 
 interface TransactionListProps {
   transactions: Transaction[]
@@ -96,7 +100,7 @@ const TransactionRow = React.memo(function TransactionRow({
             <span className="text-xs sm:text-sm font-medium text-neutral-205 truncate">
               {tx.description}
             </span>
-            <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
               <span className="text-[9px] px-1.5 py-0.5 rounded bg-neutral-900 text-neutral-450 border border-neutral-850 font-mono">
                 {tx.wallet_name || tx.wallet_type || 'Cashless'}
               </span>
@@ -105,7 +109,11 @@ const TransactionRow = React.memo(function TransactionRow({
                   {tx.category}
                 </span>
               )}
+              {tx.status && tx.status !== 'manual' && (
+                <AutoBadge status={tx.status} confidence={tx.confidence} />
+              )}
             </div>
+
           </div>
         </div>
 

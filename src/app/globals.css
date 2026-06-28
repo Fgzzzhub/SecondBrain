@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./components/navigation/liquid-glass.css";
 
 @variant dark (&:is(.dark, .dark *));
 
@@ -283,3 +284,14 @@ select:focus-visible {
     z-index: 9999;
   }
 }
+
+/* MobileHeader — gradient title using CSS variable to avoid React
+   shorthand/longhand style conflict (background vs backgroundClip) */
+.mobile-header-title {
+  background-image: linear-gradient(135deg, #F1F5F9 0%, var(--title-color, #6366F1) 200%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+

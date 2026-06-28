@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { format } from 'date-fns'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { Cigarette, DollarSign, StickyNote, ArrowUpRight, Sparkles } from 'lucide-react'
 import { RabbitHoleWidget } from './components/RabbitHoleWidget'
 import { FinanceOverview } from './components/FinanceOverview'
@@ -9,6 +10,9 @@ import { DailyBriefing } from './components/DailyBriefing'
 import { SubscriptionAlerts } from './components/SubscriptionAlerts'
 import { GlassCard } from './components/ui/GlassCard'
 import { StatCard } from './components/ui/StatCard'
+import { getLocalDayBounds } from '@/lib/dateUtils'
+import { MagicInput } from './components/MagicInput'
+
 
 const quotes = [
   "Simplicity is the ultimate sophistication.",
@@ -23,13 +27,10 @@ export default async function DashboardPage() {
 
   if (!user) return null
 
-  const startOfToday = new Date()
-  startOfToday.setHours(0, 0, 0, 0)
-  const startOfTodayStr = startOfToday.toISOString()
-
-  const endOfToday = new Date()
-  endOfToday.setHours(23, 59, 59, 999)
-  const endOfTodayStr = endOfToday.toISOString()
+  const cookieStore = await cookies()
+  const rawTimezone = cookieStore.get('user-timezone')?.value || 'UTC'
+  const userTimezone = decodeURIComponent(rawTimezone)
+  const { startOfTodayStr, endOfTodayStr } = getLocalDayBounds(userTimezone)
 
   const [
     { count: pendingTasks },
@@ -76,7 +77,11 @@ export default async function DashboardPage() {
         </p>
       </header>
 
+      {/* Magic Input (Natural Language Logging) */}
+      <MagicInput />
+
       {/* Daily Briefing Widget */}
+
       <DailyBriefing
         tasksCompleted={tasksCompletedToday || 0}
         todayExpenses={todayExpensesSum}

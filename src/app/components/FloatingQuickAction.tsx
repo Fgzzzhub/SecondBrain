@@ -106,8 +106,10 @@ export function FloatingQuickAction() {
         )}
       </AnimatePresence>
 
-      {/* Container */}
-      <div className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-6 right-5 md:right-6 z-[10085] flex flex-col items-end gap-3">
+      {/* Container — positioned above the liquid glass nav pill */}
+      <div className="fixed md:bottom-6 right-5 md:right-6 z-[10085] flex flex-col items-end gap-3"
+        style={{ bottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}
+      >
         {/* Action items */}
         <AnimatePresence>
           {isFabOpen && (

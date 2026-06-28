@@ -1,41 +1,61 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { Brain } from 'lucide-react'
 
-const routeTitles: Record<string, string> = {
-  '/': 'Dashboard',
-  '/tasks': 'Tasks',
-  '/timeline': 'Timeline',
-  '/finance': 'Finance',
-  '/finance/auto': 'Auto-Pilot',
-  '/schedule': 'Schedule',
-  '/notes': 'Notes',
-  '/inventory': 'Inventory',
-  '/settings': 'Settings',
-  '/docs': 'Manual',
-  '/forum': 'The Forum',
-  '/cigarettes': 'Cigarettes',
-  '/trips': 'Trips',
+const PAGE_LABELS: Record<string, string> = {
+  '/':              'Home',
+  '/finance':       'Finance',
+  '/cigarettes':    'Cigarettes',
+  '/trips':         'Trips',
+  '/tasks':         'Tasks',
+  '/notes':         'Notes',
+  '/schedule':      'Schedule',
+  '/analytics':     'Analytics',
+  '/inventory':     'Inventory',
   '/subscriptions': 'Subscriptions',
-  '/analytics': 'Analytics',
+  '/timeline':      'Timeline',
+  '/forum':         'Forum',
+  '/docs':          'Docs',
+  '/settings':      'Settings',
+  '/finance/auto':  'Auto Finance',
 }
 
 export function MobileHeader() {
   const pathname = usePathname()
-  const title = routeTitles[pathname] || 'Brain OS'
+
+  const label =
+    PAGE_LABELS[pathname] ??
+    Object.entries(PAGE_LABELS).find(
+      ([key]) => key !== '/' && pathname.startsWith(key)
+    )?.[1] ??
+    'second-brain'
 
   return (
-    <header className="md:hidden fixed top-0 left-0 w-full h-14 glass border-b border-[var(--border)] flex items-center justify-between px-5 z-[10000]">
-      <div className="flex items-center gap-2.5">
-        <div className="w-6 h-6 rounded-md flex items-center justify-center bg-[rgba(var(--color-primary),0.18)] border border-[rgba(var(--color-primary),0.35)]">
-          <Brain className="w-3 h-3 text-[rgb(var(--color-primary))] stroke-[1.75px]" />
-        </div>
-        <span className="font-semibold text-xs tracking-tight text-[var(--text-primary)]">Brain OS</span>
-      </div>
-      <div>
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-secondary)]">{title}</span>
-      </div>
+    <header
+      style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+        height: '52px',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 20px',
+        /* Fully transparent — no glass, no background */
+        background: 'transparent',
+      }}
+    >
+      <h1
+        style={{
+          fontSize: '20px',
+          fontWeight: 700,
+          color: 'rgba(255, 255, 255, 0.92)',
+          letterSpacing: '-0.03em',
+          margin: 0,
+          lineHeight: 1,
+        }}
+      >
+        {label}
+      </h1>
     </header>
   )
 }

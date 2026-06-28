@@ -35,7 +35,8 @@ export async function createTask(formData: FormData) {
       description: description || null,
       due_date: due_date ? new Date(due_date).toISOString() : null,
       user_id: user.id,
-      is_completed: false
+      is_completed: false,
+      status: 'pending'
     })
 
   if (error) throw new Error(error.message)
@@ -50,7 +51,8 @@ export async function toggleTaskCompletion(taskId: string, is_completed: boolean
   
   const updateData = {
     is_completed,
-    completed_at: is_completed ? new Date().toISOString() : null
+    completed_at: is_completed ? new Date().toISOString() : null,
+    status: is_completed ? 'done' : 'pending'
   }
 
   const { error } = await supabase
@@ -279,6 +281,42 @@ export async function createTransaction(formData: FormData) {
   revalidatePath('/')
 }
 
+export async function confirmPendingTransaction(
+  id: string,
+  amount: number,
+  type: 'income' | 'expense',
+  description: string,
+  category: string,
+  wallet_name: string
+) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error("Unauthorized")
+
+  const wallet_type = wallet_name === 'Cash' ? 'Cash' : 'Cashless'
+
+  const updatePayload: any = {
+    amount,
+    type,
+    description,
+    category,
+    wallet_name,
+    wallet_type,
+    status: 'auto'
+  }
+
+  const { error } = await supabase
+    .from('transactions')
+    .update(updatePayload)
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) throw new Error(error.message)
+  revalidatePath('/finance')
+  revalidatePath('/')
+}
+
+
 export async function getWalletBalances() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -398,16 +436,19 @@ export async function smokeOneStick(packId: string) {
 
     if (updateErr) throw new Error(updateErr.message)
 
-    const { error: logErr } = await supabase
+    const { data: logData, error: logErr } = await supabase
       .from('cigarette_logs')
       .insert({
         pack_id: packId,
         user_id: user.id,
         log_type: 'self'
       })
+      .select('id, pack_id, smoked_at, log_type, cigarette_packs(brand)')
+      .single()
 
     if (logErr) throw new Error(logErr.message)
     revalidatePath('/')
+    return logData
   } catch (err) {
     console.error('Error in smokeOneStick:', err)
     const message = err instanceof Error ? err.message : 'Failed to log smoke'
@@ -442,7 +483,7 @@ export async function logCigaretteManually(packId: string, smokedAt: string) {
 
     if (updateErr) throw new Error(updateErr.message)
 
-    const { error: logErr } = await supabase
+    const { data: logData, error: logErr } = await supabase
       .from('cigarette_logs')
       .insert({
         pack_id: packId,
@@ -450,9 +491,12 @@ export async function logCigaretteManually(packId: string, smokedAt: string) {
         smoked_at: new Date(smokedAt).toISOString(),
         log_type: 'self'
       })
+      .select('id, pack_id, smoked_at, log_type, cigarette_packs(brand)')
+      .single()
 
     if (logErr) throw new Error(logErr.message)
     revalidatePath('/')
+    return logData
   } catch (err) {
     console.error('Error in logCigaretteManually:', err)
     const message = err instanceof Error ? err.message : 'Failed to log cigarette manually'
@@ -487,16 +531,19 @@ export async function shareCigarette(packId: string) {
 
     if (updateErr) throw new Error(updateErr.message)
 
-    const { error: logErr } = await supabase
+    const { data: logData, error: logErr } = await supabase
       .from('cigarette_logs')
       .insert({
         pack_id: packId,
         user_id: user.id,
         log_type: 'shared'
       })
+      .select('id, pack_id, smoked_at, log_type, cigarette_packs(brand)')
+      .single()
 
     if (logErr) throw new Error(logErr.message)
     revalidatePath('/')
+    return logData
   } catch (err) {
     console.error('Error in shareCigarette:', err)
     const message = err instanceof Error ? err.message : 'Failed to share cigarette'
@@ -585,7 +632,22 @@ export async function deleteCigaretteLog(logId: string, packId: string) {
   if (!user) throw new Error("Unauthorized")
 
   try {
-    // 1. Get the current pack to see remaining_sticks
+    // 1. Delete the log first, and check if it existed and was owned by the user
+    const { data: deletedLogs, error: deleteErr } = await supabase
+      .from('cigarette_logs')
+      .delete()
+      .eq('id', logId)
+      .eq('user_id', user.id)
+      .select()
+
+    if (deleteErr) throw new Error(deleteErr.message)
+
+    // 2. If no log was actually deleted, throw an error to trigger rollback on client
+    if (!deletedLogs || deletedLogs.length === 0) {
+      throw new Error("Cigarette log not found or already deleted")
+    }
+
+    // 3. Get the current pack to see remaining_sticks
     const { data: pack, error: packErr } = await supabase
       .from('cigarette_packs')
       .select('remaining_sticks, initial_sticks')
@@ -594,7 +656,7 @@ export async function deleteCigaretteLog(logId: string, packId: string) {
 
     if (packErr) throw new Error("Pack not found")
 
-    // 2. Increment the stock
+    // 4. Increment the stock
     const newRemaining = pack.remaining_sticks + 1
 
     const { error: updateErr } = await supabase
@@ -606,14 +668,6 @@ export async function deleteCigaretteLog(logId: string, packId: string) {
       .eq('id', packId)
 
     if (updateErr) throw new Error(updateErr.message)
-
-    // 3. Delete the log
-    const { error: deleteErr } = await supabase
-      .from('cigarette_logs')
-      .delete()
-      .eq('id', logId)
-
-    if (deleteErr) throw new Error(deleteErr.message)
 
     revalidatePath('/')
   } catch (err) {

@@ -5,7 +5,8 @@ import { LogOut, Brain } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { AuthUI } from "./components/AuthUI";
 import { signOut } from "./actions";
-import { BottomNav } from "./components/BottomNav";
+import { LiquidGlassNav } from "./components/navigation/LiquidGlassNav";
+import { SwipeTransition } from "./components/navigation/SwipeTransition";
 import { MobileHeader } from "./components/MobileHeader";
 import { ThemeProvider } from "./components/ThemeProvider";
 import NextTopLoader from "nextjs-toploader";
@@ -13,6 +14,7 @@ import { SidebarLinks } from "./components/SidebarLinks";
 import { SettingsProvider } from "./components/SettingsContext";
 import { OmniSearch } from "./components/OmniSearch";
 import { AutoFinanceSync } from "./components/AutoFinanceSync";
+import { TimezoneSync } from "./components/TimezoneSync";
 import { QuickActionProvider } from "./components/QuickActionProvider";
 import { FloatingQuickAction } from "./components/FloatingQuickAction";
 import { NotificationPrompt } from "./components/NotificationPrompt";
@@ -106,18 +108,24 @@ export default async function RootLayout({
                 <div className="flex-1 md:pl-[17.5rem] flex flex-col min-h-screen w-full">
                   <MobileHeader />
 
-                  <main className="flex-1 w-full px-5 sm:px-6 pt-20 pb-32 md:pt-6 md:pb-6 md:pr-6">
-                    <div className="max-w-5xl mx-auto">
-                      {children}
-                    </div>
-                  </main>
+                  <SwipeTransition>
+                    <main className="flex-1 w-full px-5 sm:px-6 pt-4 pb-36 md:pt-6 md:pb-6 md:pr-6">
+                      <div className="max-w-5xl mx-auto">
+                        {children}
+                      </div>
+                    </main>
+                  </SwipeTransition>
 
-                  <BottomNav />
+                  {/* Liquid Glass Nav — mobile only */}
+                  <div className="md:hidden">
+                    <LiquidGlassNav />
+                  </div>
                 </div>
               </div>
 
               <OmniSearch />
               <AutoFinanceSync />
+              <TimezoneSync />
               <FloatingQuickAction />
               <NotificationPrompt />
             </QuickActionProvider>

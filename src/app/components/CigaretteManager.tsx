@@ -154,7 +154,21 @@ export function CigaretteManager({ initialActivePacks, initialTodayLogs }: Cigar
     setTodayLogs([newLog, ...todayLogs])
 
     try {
-      await smokeOneStick(packId)
+      const realLog = await smokeOneStick(packId)
+      if (realLog) {
+        const formattedLog: CigaretteLog = {
+          id: realLog.id,
+          pack_id: realLog.pack_id,
+          smoked_at: realLog.smoked_at,
+          log_type: realLog.log_type as 'self' | 'shared',
+          cigarette_packs: Array.isArray(realLog.cigarette_packs)
+            ? realLog.cigarette_packs[0]
+            : realLog.cigarette_packs
+        }
+        setTodayLogs(currentLogs =>
+          currentLogs.map(log => log.id === newLog.id ? formattedLog : log)
+        )
+      }
     } catch {
       alert('Failed to log smoke. Reverting...')
       // Rollback
@@ -201,7 +215,21 @@ export function CigaretteManager({ initialActivePacks, initialTodayLogs }: Cigar
     setTodayLogs([newLog, ...todayLogs])
 
     try {
-      await shareCigarette(packId)
+      const realLog = await shareCigarette(packId)
+      if (realLog) {
+        const formattedLog: CigaretteLog = {
+          id: realLog.id,
+          pack_id: realLog.pack_id,
+          smoked_at: realLog.smoked_at,
+          log_type: realLog.log_type as 'self' | 'shared',
+          cigarette_packs: Array.isArray(realLog.cigarette_packs)
+            ? realLog.cigarette_packs[0]
+            : realLog.cigarette_packs
+        }
+        setTodayLogs(currentLogs =>
+          currentLogs.map(log => log.id === newLog.id ? formattedLog : log)
+        )
+      }
     } catch {
       alert('Failed to share cigarette. Reverting...')
       // Rollback
