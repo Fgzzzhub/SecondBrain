@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Compass, RefreshCw, ExternalLink, BookmarkPlus, Check, Sparkles } from 'lucide-react'
 import { fetchRandomKnowledge, saveRabbitHoleToTimeline } from '@/app/actions'
+import { GlassCard } from './ui/GlassCard'
 
 interface WikipediaPage {
   title: string
@@ -47,7 +48,8 @@ export function RabbitHoleWidget() {
   }
 
   return (
-    <div className="bg-white dark:bg-neutral-900/50 border border-neutral-250 dark:border-neutral-800 rounded-xl p-5 md:p-6 transition-all shadow-sm flex flex-col gap-4 relative overflow-hidden group">
+    <GlassCard className="flex flex-col gap-4 relative overflow-hidden group">
+
       {/* Visual background gradient glow on hover */}
       <div className="absolute inset-0 bg-gradient-to-tr from-neutral-500/5 to-transparent dark:from-neutral-500/2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
@@ -159,10 +161,9 @@ export function RabbitHoleWidget() {
           </div>
         </div>
       )}
-
       {error && (
         <span className="text-[11px] text-red-500 font-medium z-10">{error}</span>
       )}
-    </div>
+    </GlassCard>
   )
 }

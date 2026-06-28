@@ -5,7 +5,6 @@ import { cookies } from 'next/headers'
 import { Cigarette, DollarSign, StickyNote, ArrowUpRight, Sparkles, Banknote, Building2, CreditCard } from 'lucide-react'
 import { RabbitHoleWidget } from './components/RabbitHoleWidget'
 import { getWalletBalances } from '@/app/actions'
-import { DailyBriefing } from './components/DailyBriefing'
 import { SubscriptionAlerts } from './components/SubscriptionAlerts'
 import { GlassCard } from './components/ui/GlassCard'
 import { StatCard } from './components/ui/StatCard'
@@ -185,41 +184,37 @@ export default async function DashboardPage() {
 
   return (
     <div className="stagger flex flex-col gap-8 md:gap-10">
-      {/* Greeting — clean, minimal */}
-      <div style={{ padding: '4px 0 20px' }}>
-        <p style={{
-          fontSize: '13px',
-          fontWeight: 500,
-          color: 'rgba(255,255,255,0.35)',
-          letterSpacing: '0.04em',
-          textTransform: 'uppercase',
-          marginBottom: '4px',
-        }}>
-          {new Date().toLocaleDateString('id-ID', {
-            weekday: 'long', day: 'numeric', month: 'long'
-          })}
-        </p>
-        <h1 style={{
-          fontSize: '28px',
-          fontWeight: 700,
-          color: 'rgba(255,255,255,0.92)',
-          letterSpacing: '-0.03em',
-          lineHeight: 1.1,
-          margin: 0,
-        }}>
-          {getGreeting()}
-        </h1>
+      {/* Greeting + Magic Input Wrapper (tight gap) */}
+      <div className="flex flex-col gap-3">
+        {/* Greeting — clean, minimal */}
+        <div style={{ padding: '4px 0 0' }}>
+          <p style={{
+            fontSize: '13px',
+            fontWeight: 500,
+            color: 'rgba(255,255,255,0.35)',
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            marginBottom: '4px',
+          }}>
+            {new Date().toLocaleDateString('id-ID', {
+              weekday: 'long', day: 'numeric', month: 'long'
+            })}
+          </p>
+          <h1 style={{
+            fontSize: '28px',
+            fontWeight: 700,
+            color: 'rgba(255,255,255,0.92)',
+            letterSpacing: '-0.03em',
+            lineHeight: 1.1,
+            margin: 0,
+          }}>
+            {getGreeting()}
+          </h1>
+        </div>
+
+        {/* Magic Input (Natural Language Logging) */}
+        <MagicInput />
       </div>
-
-      {/* Magic Input (Natural Language Logging) */}
-      <MagicInput />
-
-      {/* Daily Briefing Widget */}
-      <DailyBriefing
-        tasksCompleted={tasksCompletedToday || 0}
-        todayExpenses={todayExpensesSum}
-        cigarettesSmoked={cigarettesToday || 0}
-      />
 
       {/* MY WALLETS */}
       <section style={{ marginBottom: '24px' }}>
