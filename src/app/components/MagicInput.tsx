@@ -113,7 +113,7 @@ export function MagicInput() {
       <div className="relative flex items-center w-full rounded-2xl border border-neutral-900 bg-neutral-950/40 p-1.5 focus-within:border-[rgba(var(--color-primary),0.5)] focus-within:shadow-[0_0_12px_rgba(var(--color-primary),0.08)] transition-all duration-300">
         
         {/* Magic Input Icon decoration */}
-        <div className="pl-3.5 pr-2 flex items-center justify-center text-neutral-500">
+        <div className="pl-3.5 pr-2 flex items-center justify-center text-neutral-500 flex-shrink-0">
           <Sparkles className="w-4 h-4 text-[rgb(var(--color-primary))] stroke-[1.75px] animate-pulse" />
         </div>
 
@@ -124,11 +124,11 @@ export function MagicInput() {
           onChange={(e) => setValue(e.target.value)}
           placeholder="Tulis aktivitas... (contoh: 'kopi 20k, rokok 2 batang')"
           disabled={loading}
-          className="flex-1 bg-transparent py-2.5 text-sm text-[var(--text-primary)] placeholder-neutral-500 outline-none min-w-0 pr-24"
+          className="flex-1 bg-transparent py-2.5 text-sm text-[var(--text-primary)] placeholder-neutral-500 outline-none min-w-0 pr-2"
         />
 
         {/* Buttons (Mic & Send) */}
-        <div className="absolute right-2.5 flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 pr-1 flex-shrink-0 z-20">
           {/* Microphone trigger */}
           <button
             type="button"
@@ -165,6 +165,7 @@ export function MagicInput() {
             )}
           </button>
         </div>
+
       </div>
     </form>
   )
