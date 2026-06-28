@@ -116,11 +116,12 @@ export default async function RootLayout({
                     </main>
                   </SwipeTransition>
 
-                  {/* Liquid Glass Nav — mobile only */}
-                  <div className="md:hidden">
-                    <LiquidGlassNav />
-                  </div>
                 </div>
+              </div>
+
+              {/* Liquid Glass Nav — mobile only */}
+              <div className="md:hidden">
+                <LiquidGlassNav />
               </div>
 
               <OmniSearch />
