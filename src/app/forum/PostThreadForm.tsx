@@ -26,7 +26,7 @@ export function PostThreadForm() {
   const charsRemaining = charLimit - content.length
 
   return (
-    <div className="p-4 rounded-2xl border border-neutral-200 dark:border-neutral-900 bg-white dark:bg-neutral-950/20 backdrop-blur-sm shadow-sm mb-6">
+    <div className="p-4 rounded-2xl border border-neutral-200 dark:border-neutral-900 bg-white dark:bg-neutral-950 shadow-sm mb-6">
       <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <div className="flex gap-3 items-start">
           <div className="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center flex-shrink-0 border border-neutral-200 dark:border-neutral-800">

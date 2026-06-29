@@ -68,7 +68,7 @@ export function CalibrationForm() {
             animate={{ opacity: 1, height: 'auto', y: 0 }}
             exit={{ opacity: 0, height: 0, y: -10 }}
             transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-            className="p-5 rounded-xl border border-neutral-200 dark:border-neutral-900 bg-white dark:bg-neutral-950/20 backdrop-blur-md shadow-sm mt-2"
+            className="p-5 rounded-xl border border-neutral-200 dark:border-neutral-900 bg-white dark:bg-neutral-950 shadow-sm mt-2"
           >
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xs font-semibold tracking-wider text-neutral-400 dark:text-neutral-500 uppercase flex items-center gap-1.5">

@@ -123,7 +123,7 @@ export function FloatingQuickAction() {
           backdropFilter: isFabOpen ? 'blur(6px)' : 'blur(0px)',
           WebkitBackdropFilter: isFabOpen ? 'blur(6px)' : 'blur(0px)',
           opacity: isFabOpen ? 1 : 0,
-          pointerEvents: isFabOpen ? 'all' : 'none',
+          pointerEvents: isFabOpen ? 'auto' : 'none',
           transition: 'opacity 0.3s ease, backdrop-filter 0.3s ease',
         }}
         onClick={closeFab}
@@ -141,6 +141,7 @@ export function FloatingQuickAction() {
           flexDirection: 'column',
           alignItems: 'flex-end',
           gap: '10px',
+          pointerEvents: 'none',
         }}
       >
         {/* Action items — muncul dari bawah ke atas dengan spring stagger */}
@@ -168,7 +169,7 @@ export function FloatingQuickAction() {
                 transition: isFabOpen
                   ? `opacity 0.35s ease ${delay}, transform 0.45s cubic-bezier(0.34,1.56,0.64,1) ${delay}`
                   : `opacity 0.2s ease ${delay}, transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94) ${delay}`,
-                pointerEvents: isFabOpen ? 'all' : 'none',
+                pointerEvents: isFabOpen ? 'auto' : 'none',
               }}
             >
               {/* Label pill — liquid glass */}
@@ -286,6 +287,7 @@ export function FloatingQuickAction() {
             WebkitTapHighlightColor: 'transparent',
             position: 'relative',
             overflow: 'hidden',
+            pointerEvents: 'auto',
 
             transition: 'background 0.35s ease, box-shadow 0.35s ease, transform 0.2s cubic-bezier(0.34,1.56,0.64,1)',
           }}
