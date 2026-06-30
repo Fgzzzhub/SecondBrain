@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { triggerSyncRevalidation } from '@/app/actions'
 
 // Helper to format Date object into local YYYY-MM-DD string
 function getLocalDateString(d: Date = new Date()): string {
@@ -205,6 +206,9 @@ export function useAutoFinanceSync() {
           
           await Promise.all(updatePromises)
           console.log('Auto-Pilot: Catch-up synchronization complete.')
+
+          // Revalidate cache to reflect changes in UI
+          await triggerSyncRevalidation()
         }
       } catch (err) {
         console.error('Auto-Pilot sync engine error:', err)

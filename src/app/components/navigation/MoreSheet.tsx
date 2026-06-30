@@ -14,6 +14,7 @@ import {
   BookOpen,
   Settings,
   Cpu,
+  FileSearch,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { triggerHaptic } from '@/lib/haptic'
@@ -28,6 +29,7 @@ const MORE_ITEMS = [
   { href: '/timeline',     icon: Clock,         label: 'Timeline',   iconColor: '#2DD4BF', bgColor: '#042F2E' },
   { href: '/forum',        icon: MessageCircle, label: 'Forum',      iconColor: '#FB923C', bgColor: '#431407' },
   { href: '/finance/auto', icon: Cpu,           label: 'Auto-Pilot', iconColor: '#A78BFA', bgColor: '#1E1B4B' },
+  { href: '/recap',        icon: FileSearch,    label: 'Data Recap', iconColor: '#34D399', bgColor: '#064E3B' },
   { href: '/docs',         icon: BookOpen,      label: 'Docs',       iconColor: '#94A3B8', bgColor: '#1E293B' },
   { href: '/settings',     icon: Settings,      label: 'Settings',   iconColor: '#94A3B8', bgColor: '#1E293B' },
 ]

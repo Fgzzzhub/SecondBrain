@@ -102,7 +102,10 @@ const TransactionRow = React.memo(function TransactionRow({
             </span>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
               <span className="text-[9px] px-1.5 py-0.5 rounded bg-neutral-900 text-neutral-450 border border-neutral-850 font-mono">
-                {tx.wallet_name || tx.wallet_type || 'Cashless'}
+                {(() => {
+                  const name = tx.wallet_name || tx.wallet_type || 'Cashless'
+                  return name === 'Cashless' ? 'Livin' : name
+                })()}
               </span>
               {tx.category && (
                 <span className="text-[9px] px-1.5 py-0.5 rounded bg-neutral-900/60 text-neutral-400 border border-neutral-850/60 font-mono">

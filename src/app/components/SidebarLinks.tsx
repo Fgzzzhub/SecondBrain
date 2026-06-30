@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, CheckSquare, Calendar, StickyNote, Sparkles, MessageSquare, DollarSign, Package, Settings, BookOpen, Cigarette, LineChart, Compass, CreditCard, Cpu } from 'lucide-react'
+import { LayoutDashboard, CheckSquare, Calendar, StickyNote, Sparkles, MessageSquare, DollarSign, Package, Settings, BookOpen, Cigarette, LineChart, Compass, CreditCard, Cpu, FileSearch } from 'lucide-react'
 
 // All icons mapped
 export const iconMap = {
@@ -20,7 +20,8 @@ export const iconMap = {
   Analytics: LineChart,
   Trips: Compass,
   Subscriptions: CreditCard,
-  AutoPilot: Cpu
+  AutoPilot: Cpu,
+  DataRecap: FileSearch,
 }
 
 export const navGroups = [
@@ -49,6 +50,7 @@ export const navGroups = [
       { label: "Subscriptions", href: "/subscriptions", icon: "Subscriptions" },
       { label: "Analytics", href: "/analytics", icon: "Analytics" },
       { label: "Inventory", href: "/inventory", icon: "Inventory" },
+      { label: "Data Recap", href: "/recap", icon: "DataRecap" },
     ]
   },
   {

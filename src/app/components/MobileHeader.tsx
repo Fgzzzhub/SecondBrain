@@ -18,6 +18,7 @@ const PAGE_LABELS: Record<string, string> = {
   '/docs':          'Docs',
   '/settings':      'Settings',
   '/finance/auto':  'Auto Finance',
+  '/recap':         'Data Recap',
 }
 
 export function MobileHeader() {

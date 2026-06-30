@@ -72,6 +72,21 @@ export async function GET(req: Request) {
     console.error('[CRON daily] Briefing notification error:', e)
   }
 
+  // 8. Weekly Recap — runs every Monday
+  const isMonday = new Date().getDay() === 1
+  if (isMonday && process.env.NEXT_PUBLIC_APP_URL) {
+    try {
+      const recapRes = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/recap/scheduled`, {
+        headers: { authorization: `Bearer ${process.env.CRON_SECRET}` }
+      })
+      const recapData = await recapRes.json()
+      results.scheduledRecap = recapData.success ? 'ok' : recapData.error
+    } catch (e: any) {
+      errors.scheduledRecap = e.message
+      console.error('[CRON daily] Scheduled recap error:', e)
+    }
+  }
+
   console.log('[CRON daily] Completed daily routine:', {
     date: yesterdayStr,
     results,

@@ -6,6 +6,7 @@ import { Sparkles, Mic, MicOff, Send, Loader2 } from 'lucide-react'
 import { useQuickAction } from './QuickActionProvider'
 import { triggerHaptic } from '@/lib/haptic'
 import { motion, AnimatePresence } from 'framer-motion'
+import { logMagicPrompt } from '@/app/actions'
 
 export function MagicInput() {
   const router = useRouter()
@@ -85,17 +86,7 @@ export function MagicInput() {
     triggerHaptic(15)
 
     try {
-      const res = await fetch('/api/magic-log', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: promptText })
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Gagal mengirim data')
-      }
+      const data = await logMagicPrompt(promptText)
 
       toast(data.message || 'Log berhasil dicatat!', 'success')
       setValue('')

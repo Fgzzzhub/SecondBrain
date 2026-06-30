@@ -265,7 +265,7 @@ export function PendingTransactions({ transactions: initialTransactions }: Pendi
                           {tx.category || 'Lainnya'}
                         </span>
                         <span className="text-[10px] px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400">
-                          {tx.wallet_name || 'Cashless'}
+                          {tx.wallet_name === 'Cashless' || !tx.wallet_name ? 'Livin' : tx.wallet_name}
                         </span>
                       </div>
                     </div>
